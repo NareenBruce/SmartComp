@@ -1,0 +1,33 @@
+Web pages 
+log in & registration
+1. Main log in page(User, caretaker, admin, superadmin)
+2. ⁠Register page
+3. ⁠User Register
+4. ⁠Caretaker register
+
+User 
+9. ⁠User home page
+10. ⁠Medical data page
+11. ⁠health report
+12. ⁠update medical data page
+13. ⁠emergency page
+14. ⁠emergency self assessment page
+15. ⁠real time chat page
+16. ⁠location sharing page
+
+Caretaker
+17. ⁠caretaker home page
+18. ⁠elderly assigned page
+19. ⁠elderly medical data
+20. ⁠elderly real time chat
+
+Admin
+21. ⁠admin home page
+22. ⁠admin view users - crud 
+23. ⁠admin view caretakers - crud
+24. ⁠caretaker availability 
+
+Super Admin
+25. super admin home page
+26. ⁠view admins - crud 
+27. ⁠system oversight page
