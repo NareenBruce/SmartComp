@@ -23,6 +23,20 @@ def create_table():
             ph_num TEXT NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS admin (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS super_admin (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -42,16 +56,30 @@ def close_db(exception):
 def home():
     return render_template("main.html")
 
-@app.route("/login")
-def login(username, password):
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    db= get_db()
+    cursor = db.cursor()
+    
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        
+        try:
+            cursor.execute('SELECT * FROM caretaker WHERE username = ? AND password = ?', (username, password))
+            if cursor.fetchone() is not None:
+                return render_template("c_homepage.html")
+        
+            cursor.execute('SELECT * FROM user WHERE username = ? AND password = ?', (username, password))
+            if cursor.fetchone() is not None:
+                return render_template("u_homepage.html")
+            else:
+                flash("Invalid username or password")
+            
+        except Exception as e:
+            return ("An error occured: " + str(e))
+        
     return render_template("login.html")
-
-def loginauth(username, password):
-    cursor.execute('SELECT * FROM login WHERE username = ? AND password = ?', (username, password))
-    if cursor.fetchone() is not None:
-        return render_template("homepage.html")
-    else:
-        "Invalid username or password"
 
 @app.route("/signup")
 def signup():
@@ -95,8 +123,38 @@ def usersignup():
             db.close()
     return render_template("u_signup.html")
 
-@app.route("/caresignup")
+@app.route("/caresignup", methods= ["GET", "POST"])
 def caresignup():
+    db = get_db()
+    cursor = db.cursor()
+    
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+        phone = request.form["phone"]
+    
+        if password != confirm_password:
+            flash("Passwords do not match")
+            return redirect("/caresignup")
+        try: 
+            #check if alr exists
+            cursor.execute('SELECT * FROM caretaker WHERE username=? AND password=?', (username,password))
+            existing_acc= cursor.fetchone()
+            if existing_acc is not None:
+                flash ("User already exists")
+                return redirect("/caresignup")
+            
+            #add the user to database
+            cursor.execute('INSERT INTO caretaker (username, password, ph_num) VALUES (?, ?, ?)', (username, password, phone))
+            db.commit()
+            return ("You have successfully signed up!")
+            
+        except Exception as e:
+            return ("An error occured: " + str(e))
+            
+        finally:
+            db.close()
     return render_template("c_signup.html")
 
 if __name__ == "__main__":
