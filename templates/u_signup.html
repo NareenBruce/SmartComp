@@ -7,6 +7,29 @@
     </head>
     <body>
         <h1>User Signup</h1>
-        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <form action="/usersignup" method="POST">
+            <label for="username">Enter Username:</label>
+            <input type="text" id="username" name="username" required><br><br>
+            
+            <label for="password">Enter Password</label>
+            <input type="password" id="password" name="password" requuired minlength="5" maxlength="10"><br><br>
+
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password" required minlength="5" maxlength="10"><br><br>
+
+            <label for="phone">Enter Phonenumber:</label>
+            <input type="text" id="phone" name="phone" required><br><br>
+
+            <input type="submit" value="Signup">
+        </form>
     </body>
 </html>
