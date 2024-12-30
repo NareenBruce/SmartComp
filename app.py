@@ -75,11 +75,11 @@ def login():
         try:
             cursor.execute('SELECT * FROM caretaker WHERE username = ? AND password = ?', (username, password))
             if cursor.fetchone() is not None:
-                return render_template("c_homepage.html")
+                return render_template("Caretaker/caretakerhomepage.html")
         
             cursor.execute('SELECT * FROM user WHERE username = ? AND password = ?', (username, password))
             if cursor.fetchone() is not None:
-                return render_template("u_homepage.html")
+                return render_template("User/userhomepage.html")
             else:
                 flash("Invalid username or password")
             
@@ -96,7 +96,7 @@ def signup():
 #this is the superadmin login route and method
 @app.route("/superadmin")
 def superadmin():
-    return render_template("sa_homepage.html")
+    return render_template("SuperAdmin/superadminlogin.html")
 
 #this is the user login route and method
 @app.route("/usersignup", methods=["GET", "POST"])
@@ -133,7 +133,7 @@ def usersignup():
             
         finally:
             db.close()
-    return render_template("u_signup.html")
+    return render_template("User/u_signup.html")
 
 #this is the caretaker login route and method
 @app.route("/caresignup", methods= ["GET", "POST"])
@@ -170,7 +170,7 @@ def caresignup():
             
         finally:
             db.close()
-    return render_template("c_signup.html")
+    return render_template("Caretaker/c_signup.html")
 
 #this is the part of code that runs the app
 if __name__ == "__main__":
