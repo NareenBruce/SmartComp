@@ -1,0 +1,78 @@
+* {
+    font-family: "proxima-nova", "Gill Sans MT", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    text-align: center;
+    background-color: rgb(61, 55, 55);
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header a {
+    color: #ffffff;
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 1.5cap;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+.title h1 {
+    text-align: center;
+    padding-top: 10px;
+    text-decoration: underline;
+    padding-bottom: 10px;
+}
+
+footer {
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    padding-top: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+body {
+    background-color: white;
+    margin-bottom: 30px;
+}
+
+/*main page*/
+
+.navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    flex-wrap: wrap;
+    gap: 50px;
+}
+
+.box {
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(86, 7, 7);
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.box:hover {
+    transform: scale(1.10);
+}
+
+.box a {
+    color: #f9e4bf;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
