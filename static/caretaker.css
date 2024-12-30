@@ -204,3 +204,46 @@ td {
 .chat:hover {
     background-color: rgb(86, 7, 7);
 }
+
+/*contacts*/
+
+.contactpatient {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 400px;
+    gap: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.contact {
+    background-color: rgb(194, 13, 13);
+    color: white;
+    border: none;
+    width: 100px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center; 
+    }
+
+.contact:hover {
+    background-color: rgb(86, 7, 7);
+}
+
+.contact button {
+    color: white;
+    text-align: center;
+    text-decoration: none;
+}
