@@ -12,8 +12,55 @@
     </div>
 </header>
 <body>
-    </section>
-    
+    <section>
+        <div class="signup-container">
+            <h2>Sign Up</h2>
+            <form action="submit_signup.html" method="post">
+                <label for="role">Sign up as:</label>
+                <select id="role" name="role" required>
+                    <option value="caretaker">Caretaker</option>
+                    <option value="user">User</option>
+                </select>
+
+                <br><br>
+
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <br><br>
+
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+
+                <br><br>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <br><br>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <br><br>
+
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+
+                <br><br>
+
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                </select>
+
+                <br><br>
+
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+    </section>    
 </body>
 <footer>
     &copy; 2024 Smart Companion Application | Group 2 T18L
