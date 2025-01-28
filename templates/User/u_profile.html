@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Container for Profile */
+        .profile-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        /* Profile Image */
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        /* Profile Details */
+        .profile-details {
+            margin-bottom: 20px;
+        }
+
+        .profile-details h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .profile-details p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        /* Edit Button */
+        .edit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .edit-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <img src="static/user.jpg" alt="Profile Picture" class="profile-image">
+        <div class="profile-details">
+            <h2>Name: {{ user['name'] }}</h2>
+            <p>Phone: {{ user['ph_num'] }}</p>
+        </div>
+        <a href="#" class="edit-btn">Edit Profile</a>
+    </div>
+</body>
+</html>

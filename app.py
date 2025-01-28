@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, request, redirect, url_for,g
+from flask import Flask, flash, render_template, request, redirect, url_for,g, session
 import sqlite3
 
 app= Flask(__name__)
@@ -47,6 +47,7 @@ def create_table():
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect('project.db')
+        g.db.row_factory = sqlite3.Row
     return g.db
 
 #this method closes the database connection
@@ -75,10 +76,12 @@ def login():
         try:
             cursor.execute('SELECT * FROM caretaker WHERE username = ? AND password = ?', (username, password))
             if cursor.fetchone() is not None:
+                session['username'] = username  # Store username in session
                 return render_template("Caretaker/caretakerhomepage.html")
         
             cursor.execute('SELECT * FROM user WHERE username = ? AND password = ?', (username, password))
             if cursor.fetchone() is not None:
+                session['username'] = username  # Store username in session
                 return render_template("User/userhomepage.html")
             else:
                 flash("Invalid username or password")
@@ -134,6 +137,24 @@ def usersignup():
         finally:
             db.close()
     return render_template("User/u_signup.html")
+
+@app.route("/userprofile", methods=["GET", "POST"])
+def userprofile():
+    db = get_db()
+    cursor = db.cursor()
+    
+     # Retrieve the username from session
+    username = session.get('username')
+
+    # If no username in session, redirect to login page
+    if not username:
+        return redirect(url_for('login'))
+    
+    cursor.execute('SELECT * FROM user WHERE username = ?',(username,))
+    user = cursor.fetchone()
+    db.close()
+    
+    return render_template("User/u_profile.html", user=user)
 
 #this is the caretaker login route and method
 @app.route("/caresignup", methods= ["GET", "POST"])
