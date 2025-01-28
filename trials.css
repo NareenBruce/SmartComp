@@ -1,0 +1,129 @@
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Container */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #e0b0c4;
+    padding: 20px;
+    text-align: center;
+}
+
+.sidebar h2 {
+    color: #5a3b49;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.side-btn {
+    width: 100%;
+    background-color: #d393a3;
+    border: none;
+    padding: 10px;
+    margin: 8px 0;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.side-btn:hover {
+    background-color: #b37b8c;
+}
+
+/* Profile Section */
+.profile-section {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    background-color: #e9af5b;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+/* Profile Card */
+.profile-card {
+    background-color: #f6e5c1;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card h3 {
+    background-color: #a9826d;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.profile-content {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.profile-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 2px solid #5a3b49;
+}
+
+.profile-details p {
+    font-size: 16px;
+    color: #5a3b49;
+    margin: 5px 0;
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.edit-btn {
+    background-color: #7c997b;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-btn:hover {
+    background-color: #5e7963;
+}
+
+.remove-btn {
+    background-color: #c95a42;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background-color: #a54330;
+}

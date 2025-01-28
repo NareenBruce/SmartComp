@@ -1,1 +1,2 @@
 //This file is for Nareen to list his tasks, more of a scribble pad; nothing important here
+yesterday you did the user profile iconthingy, so today focus on doing the user profile
