@@ -3,86 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <style>
-        /* Basic Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Body Styling */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        /* Container for Profile */
-        .profile-container {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 300px;
-            text-align: center;
-        }
-
-        /* Profile Image */
-        .profile-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-        }
-
-        /* Profile Details */
-        .profile-details {
-            margin-bottom: 20px;
-        }
-
-        .profile-details h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .profile-details p {
-            font-size: 16px;
-            color: #555;
-        }
-
-        /* Edit Button */
-        .edit-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .edit-btn:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Smart Companion - User Profile</title>
+    <link rel="stylesheet" href="static/profile.css">
 </head>
 <body>
-    <div class="profile-container">
-        <img src="static/user.jpg" alt="Profile Picture" class="profile-image">
-        <div class="profile-details">
-            <h2>Name: {{ user['name'] }}</h2>
-            <p>Phone: {{ user['ph_num'] }}</p>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
+            <button class="side-btn">CONTACT</button>
+            <button class="side-btn">CHAT</button>
+            <button class="side-btn">LOCATION SHARING</button>
+            <button class="side-btn">EMERGENCY SPEED DIAL</button>
+            <button class="side-btn">MEDICAL REPORTS</button>
         </div>
-        <a href="#" class="edit-btn">Edit Profile</a>
+
+        <!-- Main Content -->
+        <div class="profile-section">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+            </div>
+
+            <div class="profile-card">
+                <h3>PATIENT DETAILS</h3>
+                <div class="profile-content">
+                    <img src="{{ image_url }}" alt="Profile Picture" class="profile-img">
+                    <div class="profile-details">
+                        <p><strong>Name:</strong> {{ user['name'] }}</p>
+                        <p><strong>Age:</strong> {{ user['age'] }}</p>
+                        <p><strong>Gender:</strong> {{ user['gender'] }}</p>
+                        <p><strong>Username:</strong> {{ user['username'] }}</p>
+                        <p>
+                            <strong>Password:</strong> 
+                            <span id="password" data-password="{{ user['password'] }}"  type="password">*******</span>
+                            <button onclick="togglePassword()">Show</button>
+                        </p>
+                        <p><strong>Contact:</strong> {{ user['ph_num'] }}</p>
+                    </div>
+                    <script src="static/js/edituser.js"></script>
+                </div>
+                
+                <div class="buttons">
+                    <button class="edit-btn" onclick="openPopup()">EDIT DETAILS</button>
+
+                    <!-- The pop-up container -->
+                    <div id="popup" class="popup-container">
+                        <div class="popup-content">
+                            <span class="close-btn" onclick="closePopup()">&times;</span>
+                            <h2>Edit User</h2>
+                          <!-- form -->
+                            <form method="POST" enctype="multipart/form-data" action="/edituser">
+                                <input type="file" name="image" id="image" accept="image/*">
+                                                      
+                                <!-- File Input for Image Upload -->
+                                <input type="file" id="file-input" name="image" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                                
+                                <!-- Display selected image -->
+                                <div id="image-preview" style="margin-top: 10px;"></div>
+                                    <div><p>Name:</p><input type="text" id="name" name="name"></div>
+                                    <div><p>Age:</p><input type="text" id="age" name="age"></div>
+                                    <div><p>Gender:</p><input type="text" id="gender" name="gender"></div>
+                                    <div><p>Username:</p><input type="text" id="username" name="username"></div>
+                                    <div><p>Password:</p><input type="text" id="password" name="password"></div>
+                                    <div><p>Contact:</p><input type="text" id="contact" name="contact"></div>
+                                    <button class="save-btn" onclick="closePopup()" type="submit">SAVE CHANGES</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Script to preview image -->
+                    <script>
+                        function previewImage(event) {
+                            var reader = new FileReader();
+                            reader.onload = function(){
+                                var output = document.createElement('img');
+                                output.src = reader.result;
+                                output.style.width = '100px';  // Set image preview size
+                                document.getElementById('image-preview').innerHTML = '';
+                                document.getElementById('image-preview').appendChild(output);
+                            }
+                            reader.readAsDataURL(event.target.files[0]);
+                        }
+                    </script>
+                    <script src="static/js/edituser.js"></script>
+
+                    
+                    <button class="remove-btn"  onclick="OpenPopup()">REMOVE ACCOUNT</button>
+                        <div id="pop-up" class="popup-container">
+                            <div class="popup-content">
+                                <form method="POST" action="/removeuser">
+                                    <span class="close-btn" onclick="ClosePopup()">&times;</span>
+                                        <h2>Remove Account</h2>
+                                        <h3>Are you sure you want to remove your account?</h3>
+                                        <button onclick="ClosePopup()" type="button">NO</button>
+                                        <button onclick="ClosePopup()" type="submit">YES</button>
+                                </form>
+                            </div>
+                        </div>
+                    <script src="static/js/edituser.js"></script>
+                </div>
+            </div>
+        </div>
     </div>
+
 </body>
 </html>

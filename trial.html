@@ -3,47 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Companion - User Profile</title>
+    <title>Mini Pop-up Window</title>
     <link rel="stylesheet" href="trials.css">
 </head>
 <body>
 
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <h2>HOME</h2>
-            <button class="side-btn">CONTACT</button>
-            <button class="side-btn">CHAT</button>
-            <button class="side-btn">LOCATION SHARING</button>
-            <button class="side-btn">EMERGENCY SPEED DIAL</button>
-            <button class="side-btn">MEDICAL REPORTS</button>
-        </div>
+    <!-- Button to trigger the pop-up -->
+    <button onclick="openPopup()">Open Pop-up</button>
 
-        <!-- Main Content -->
-        <div class="profile-section">
-            <div class="header">
-                <h1>SMART COMPANION APP</h1>
-            </div>
-
-            <div class="profile-card">
-                <h3>PATIENT DETAILS</h3>
-                <div class="profile-content">
-                    <img src="static/user.jpg" alt="Profile Picture" class="profile-img">
-                    <div class="profile-details">
-                        <p><strong>Name:</strong> Abu Bin Ali</p>
-                        <p><strong>Age:</strong> 62</p>
-                        <p><strong>Gender:</strong> Male</p>
-                        <p><strong>Emergency Contact:</strong> 0167459771 (Son)</p>
-                    </div>
-                </div>
-                
-                <div class="buttons">
-                    <button class="edit-btn">EDIT DETAILS</button>
-                    <button class="remove-btn">REMOVE ACCOUNT</button>
-                </div>
-            </div>
+    <!-- The pop-up container -->
+    <div id="popup" class="popup-container">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <h2>Mini Pop-up</h2>
+            <p>This is a simple pop-up window.</p>
         </div>
     </div>
+
+    <script src="script.js"></script>
 
 </body>
 </html>

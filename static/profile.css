@@ -1,0 +1,231 @@
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Container */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #e0b0c4;
+    padding: 20px;
+    text-align: center;
+}
+
+a {
+    text-decoration: none; /* Removes the underline */
+}
+
+.sidebar h2 {
+    color: #972d5d;
+    font-size: 22px;
+    margin-bottom: 20px;
+    font-weight: bold; 
+    text-decoration: none; 
+    transition: color 0.3s ease;
+}
+
+.side-btn {
+    width: 100%;
+    background-color: #d393a3;
+    border: none;
+    padding: 10px;
+    margin: 8px 0;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.side-btn:hover {
+    background-color: #b37b8c;
+}
+
+.sidebar h2:hover {
+    color: #000000; 
+}
+
+/* Profile Section */
+.profile-section {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    background-color: #e9af5b;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+/* Profile Card */
+.profile-card {
+    background-color: #f6e5c1;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card h3 {
+    background-color: #a9826d;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.profile-content {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.profile-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 2px solid #5a3b49;
+}
+
+.profile-details p {
+    font-size: 16px;
+    color: #5a3b49;
+    margin: 5px 0;
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    margin-top: 15px;
+}
+
+.edit-btn {
+    background-color: #7c997b;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-btn:hover {
+    background-color: #5e7963;
+}
+
+.remove-btn {
+    background-color: #c95a42;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background-color: #a54330;
+}
+
+.popup-container {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.save-btn{
+    background-color: #7c997b;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.save-btn:hover {
+    background-color: #5e7963;
+}
+
+.popup-content button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-items: center;
+}
+
+.popup-content h2 {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.popup-content h3 {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+
+/* Style for labels and input fields */
+.popup-content div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.popup-content p {
+    width: 100px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.popup-content input {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* When the popup is active, show it */
+.popup-container.active {
+    display: flex;
+}
