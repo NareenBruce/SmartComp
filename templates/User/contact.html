@@ -39,9 +39,9 @@
                     </tr>
                     {% for contact in contacts %}
                     <tr>
-                        <td>{{ contact[0] }}</td>
                         <td>{{ contact[1] }}</td>
                         <td><a href="tel:+6{{ contact[2] }}" onclick="event.stopPropagation();">{{ contact[2] }}</a></td>
+                        <td><a href="/deletecontact?contact_number={{ contact[2] }}" class="edit-btn">REMOVE</a></td>
                     </tr>
                     {% endfor %}
                 </table>

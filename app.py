@@ -345,6 +345,21 @@ def addcontact():
         return redirect(url_for('contactuser'))
     return redirect(url_for('contactuser'))
 
+
+@app.route("/deletecontact")
+def deletecontact():
+    db= get_db()
+    cursor = db.cursor()
+    
+    contact_number= request.args.get('contact_number')
+    print(contact_number)
+    user_id = session.get('user_id')
+    cursor.execute('DELETE FROM contact WHERE contact_number=? AND rel_id=?', (contact_number, user_id))
+    db.commit()
+    db.close()
+    flash("Contact deleted successfully!")
+    return redirect(url_for('contactuser'))
+
 @app.route("/chatuser")
 def chatuser():
     return "chat user"
