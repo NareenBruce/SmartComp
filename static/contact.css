@@ -157,3 +157,101 @@ a {
     background-color: #e3b9c4;
     color: black;
 }
+/* ////////////////////////////// */
+/* Hide the popup initially */
+.popup-container {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style for the popup content */
+.popup-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Close button style */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+}
+
+/* Form input fields */
+.popup-content input {
+    width: 90%; /* Adjust width to fit within the container */
+    padding: 10px;
+    margin: 10px 0; /* Adjust margin for better spacing */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Add Contact Button */
+.popup-content .add-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 90%; /* Adjust width to fit within the container */
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px; /* Add margin for spacing */
+}
+
+.popup-content .add-btn:hover {
+    background: #45a049;
+}
+
+/* Center the buttons */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%; /* Ensure buttons container takes full width */
+}
+
+/* Back and Add Buttons */
+.back-btn, .add-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.back-btn {
+    background: #888;
+    color: white;
+}
+
+.add-btn {
+    background: #007BFF;
+    color: white;
+}
+
+.add-btn:hover {
+    background: #0056b3;
+}
+
+/* When the popup is active, show it */
+.popup-container.active {
+    display: flex;
+}

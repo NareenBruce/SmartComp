@@ -29,3 +29,11 @@ function OpenPopup() {
 function ClosePopup() {
     document.getElementById("pop-up").classList.remove("active");
 }
+
+function opencontact() {
+    document.getElementById("pop-contact").classList.add("active");
+}
+
+function closecontact() {
+    document.getElementById("pop-contact").classList.remove("active");
+}

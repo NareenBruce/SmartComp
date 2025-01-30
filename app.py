@@ -55,6 +55,14 @@ def create_table():
             password TEXT NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS contact (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            contact_number TEXT NOT NULL,
+            rel_id INTEGER NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
     
@@ -302,6 +310,61 @@ def removeuser():
     db.close()
     flash("Account deleted successfully", "success")
     return redirect(url_for('signup'))
+
+@app.route("/contactuser")
+def contactuser():
+    db= get_db()
+    cursor = db.cursor()
+    
+    #To display image
+    user_id = session.get('user_id')
+    str_user_id = str(user_id)
+    with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #To display contacts
+    cursor.execute("SELECT * FROM contact where rel_id = ?", (user_id,))
+    contacts_list = cursor.fetchall()  # Fetch all matching rows
+    db.close()
+    return render_template("User/contact.html", image_url=image_url, contacts=contacts_list)
+
+@app.route("/addcontact", methods=["GET", "POST"])
+def addcontact():
+    db= get_db()
+    cursor = db.cursor()
+    
+    if request.method == "POST":
+        user_id = session.get('user_id')
+        name = request.form["name"]
+        contact_number = request.form["contact_number"]
+        
+        cursor.execute('INSERT INTO contact (name, contact_number, rel_id) VALUES (?, ?, ?)', (name, contact_number, user_id))
+        db.commit()
+        db.close()
+        return redirect(url_for('contactuser'))
+    return redirect(url_for('contactuser'))
+
+@app.route("/chatuser")
+def chatuser():
+    return "chat user"
+
+@app.route("/locationuser")
+def locationuser():
+    return "location user"
+
+@app.route("/emergencyuser")
+def emergencyuser():
+    return "emergency user"
+
+@app.route("/medicaluser")
+def medicaluser():
+    return "medical user"
+
+@app.route("/logout")
+def logout():
+    session.pop('user_id', None)
+    return redirect(url_for('login'))
 
 ###############################################CARETAKER####################################################
 #this is the caretaker login route and method

@@ -1,8 +1,11 @@
 //This file is for Nareen to list his tasks, more of a scribble pad; nothing important here
 yesterday you did the user profile icon thingy, so today focus on doing the user profile.
-30/1/2025-2/10 AM 
+30/1/2025-2.10 AM 
 yesterday night u worked on the profile, but you havent finished the remove account, today focus on that part.
 
+30/1/2025-6.45pm
+remove user done and log out, together with this the whole part for user profile is done
+After this you can focus on user services
 
 
 Try to finish up user by today

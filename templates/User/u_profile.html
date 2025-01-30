@@ -12,11 +12,11 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
-            <button class="side-btn">CONTACT</button>
-            <button class="side-btn">CHAT</button>
-            <button class="side-btn">LOCATION SHARING</button>
-            <button class="side-btn">EMERGENCY SPEED DIAL</button>
-            <button class="side-btn">MEDICAL REPORTS</button>
+            <button class="side-btn"><a href="{{ url_for('contactuser') }}">CONTACT</a></button>
+            <button class="side-btn"><a href="{{ url_for('chatuser') }}">CHAT</a></button>
+            <button class="side-btn"><a href="{{ url_for('locationuser') }}">LOCATION SHARING</a></button>
+            <button class="side-btn"><a href="{{ url_for('emergencyuser') }}">EMERGENCY SPEED DIAL</a></button>
+            <button class="side-btn"><a href="{{ url_for('medicaluser') }}">MEDICAL REPORTS</a></button>
         </div>
 
         <!-- Main Content -->
@@ -27,7 +27,7 @@
 
             <div class="profile-card">
                 <h3>PATIENT DETAILS</h3>
-                <div class="profile-content">
+                 <div class="profile-content">
                     <img src="{{ image_url }}" alt="Profile Picture" class="profile-img">
                     <div class="profile-details">
                         <p><strong>Name:</strong> {{ user['name'] }}</p>
@@ -100,7 +100,10 @@
                                 </form>
                             </div>
                         </div>
-                    <script src="static/js/edituser.js"></script>
+                        <script src="static/js/edituser.js"></script>
+
+                    <a href="{{ url_for('logout') }}">LOGOUT</a>
+                    
                 </div>
             </div>
         </div>
