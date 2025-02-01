@@ -6,8 +6,23 @@ yesterday night u worked on the profile, but you havent finished the remove acco
 30/1/2025-6.45pm
 remove user done and log out, together with this the whole part for user profile is done
 After this you can focus on user services
+Finally contacts is done
 
+31/1/2025-12.48PM
+I'm gonna start doing the chat.
+Display the people's name frm contacts to chat. set up default room number for that both persons to chat.
+make sure they contact number exist in the user or caretaker table for them to add the people,
+to make sure only people who are in the system use the chat
 
 Try to finish up user by today
 put their own contact in contact
 put emergency contacts in contacts
+
+
+after they click chat:
+check if that file exist in room_log/user/{rel_id}:
+Check the if your name exist?
+
+If yes copy the code in your name file
+
+Or else create a new one

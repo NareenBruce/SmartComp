@@ -1,12 +1,31 @@
 import os
 from flask import Flask, flash, render_template, request, redirect, url_for,g, session
 import sqlite3
+from flask_socketio import join_room, leave_room, send, SocketIO
+import random
+from string import ascii_uppercase
 from werkzeug.utils import secure_filename
 
 app= Flask(__name__)
 app.secret_key = 'Nareen_is_very_handsome'
 conn = sqlite3.connect('project.db')
 cursor = conn.cursor()
+socketio = SocketIO(app)
+
+#this is the dictionary that stores the rooms fr chats
+rooms = {}
+
+def generate_unique_code(length):
+    while True:
+        code = ""
+        for _ in range(length):
+            code += random.choice(ascii_uppercase)
+        
+        if code not in rooms:
+            break
+    
+    return code
+
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -65,6 +84,22 @@ def create_table():
     ''')
     conn.commit()
     conn.close()
+
+def get_contact_info(contact_name):
+    """Fetch user ID and name from `user` or `caretaker` table."""
+    db = get_db()  # Get a new database connection for this request
+    cursor = db.cursor()
+
+    # Check in `user` table first
+    cursor.execute("SELECT id, name FROM user WHERE name=?", (contact_name,))
+    result = cursor.fetchone()
+
+    # If not found, check in `caretaker` table
+    if not result:
+        cursor.execute("SELECT id, name FROM caretaker WHERE name=?", (contact_name,))
+        result = cursor.fetchone()
+
+    return result  # Returns (id, name) or None
     
 #this method connects to the database
 def get_db():
@@ -338,11 +373,17 @@ def addcontact():
         user_id = session.get('user_id')
         name = request.form["name"]
         contact_number = request.form["contact_number"]
-        
-        cursor.execute('INSERT INTO contact (name, contact_number, rel_id) VALUES (?, ?, ?)', (name, contact_number, user_id))
-        db.commit()
-        db.close()
-        return redirect(url_for('contactuser'))
+        ##check if contact already exists
+        cursor.execute('SELECT * FROM contact WHERE contact_number=? AND rel_id=?', (contact_number, user_id))
+        existing_contact= cursor.fetchone()
+        if existing_contact is not None:
+            flash ("Contact already exists")
+            return redirect("/contactuser")
+        else:
+            cursor.execute('INSERT INTO contact (name, contact_number, rel_id) VALUES (?, ?, ?)', (name, contact_number, user_id))
+            db.commit()
+            db.close()
+            return redirect(url_for('contactuser'))
     return redirect(url_for('contactuser'))
 
 
@@ -360,9 +401,126 @@ def deletecontact():
     flash("Contact deleted successfully!")
     return redirect(url_for('contactuser'))
 
-@app.route("/chatuser")
+
+
+@app.route("/chatuser", methods=["GET", "POST"])
 def chatuser():
-    return "chat user"
+    db= get_db()
+    cursor = db.cursor()
+    
+    #To display image
+    user_id = session.get('user_id')
+    str_user_id = str(user_id)
+    with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #To display contacts
+    cursor.execute("SELECT * FROM contact where rel_id = ?", (user_id,))
+    contacts_list = cursor.fetchall()  # Fetch all matching rows
+    db.commit()
+    
+    #For Chat
+    contact_number = request.args.get('contact')
+    if contact_number:
+        str_contact_number = str(contact_number)
+
+        # Fetch the contact's name using the phone number
+        cursor.execute("SELECT name FROM contact WHERE contact_number=?", (str_contact_number,))
+        contact_name = cursor.fetchone()[0]
+
+        # Fetch the user ID and name from either `user` or `caretaker` table
+        result = get_contact_info(contact_name)
+
+        if not result:
+            return "User not found", 404
+
+        contact_id, contact_name = result  # Extract ID and Name
+
+        # Fetch current user's name (Nareen)
+        cursor.execute("SELECT name FROM user WHERE id=?", (user_id,))
+        name = cursor.fetchone()[0]
+
+        # Ensure user-specific folder exists
+        user_folder = f"static/room_log/user/{user_id}/"
+        os.makedirs(user_folder, exist_ok=True)
+
+        # Define recipient's room file path (using contact's name)
+        room_file_path = os.path.join(user_folder, f"{contact_name}.txt")
+
+        room_number = None  # Initialize room_number variable
+
+        # Check if a chat room file exists for this contact
+        if os.path.exists(room_file_path):
+            with open(room_file_path, "r") as file:
+                lines = file.readlines()
+
+            # Check if the current user already has a room with this contact
+            for line in lines:
+                user_id_in_file, saved_room = line.strip().split(":")
+                if user_id_in_file == str(user_id):  # Found an existing room
+                    room_number = saved_room
+                    break
+
+        # If no room exists, generate a new one
+        if not room_number:
+            room_number = generate_unique_code(4)
+
+            # Store the chat room in both users' folders
+            with open(room_file_path, "w") as file:
+                file.write(f"{user_id}:{room_number}\n")   # Store Nareen's ID & room number
+                file.write(f"{contact_id}:{room_number}\n")  # Store Contact's ID & room number
+            
+            # Also save in the contact’s folder (for Caretaker or User)
+            contact_folder = f"static/room_log/user/{contact_id}/"
+            os.makedirs(contact_folder, exist_ok=True)
+            contact_room_file = os.path.join(contact_folder, f"{name}.txt")  # Save as "Nareen.txt"
+
+            with open(contact_room_file, "w") as file:
+                file.write(f"{contact_id}:{room_number}\n")   # Store Contact's ID & room number
+                file.write(f"{user_id}:{room_number}\n")   # Store Nareen's ID & room number
+
+        # Ensure room exists in the `rooms` dictionary
+        if room_number not in rooms:
+            rooms[room_number] = {"members": 0, "messages": []}
+
+        db.commit()
+
+        # Store room info in session
+        session["room"] = room_number
+        session["name"] = name
+
+        return render_template("User/room.html", contact_number=contact_number, contact_name=contact_name)
+
+    return render_template("User/chat.html", image_url=image_url, contacts=contacts_list)
+
+@socketio.on("message")
+def message(data):
+    room = session.get("room")
+    content = {
+        "name": session.get("name"),
+        "message": data["data"]
+    }
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
+    print(f"{session.get('name')} said: {data['data']}")
+
+@socketio.on("connect")
+def connect(auth):
+    room = session.get("room")
+    name = session.get("name")
+    
+    join_room(room)
+    send({"name": name, "message": "has entered the chat"}, to=room)
+    print(f"{name} joined room {room}")
+    
+@socketio.on("disconnect")
+def disconnect():
+    room = session.get("room")
+    name = session.get("name")
+
+    send({"name": name, "message": "has left the chat"}, to=room)
+    print(f"{name} has left the room {room}")
 
 @app.route("/locationuser")
 def locationuser():

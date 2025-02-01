@@ -7,16 +7,24 @@
     <link rel="stylesheet" href="static/contact.css">
 </head>
 <body>
-
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
             <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
-            <button class="nav-btn">CONTACT</button>
-            <button class="nav-btn">CHAT</button>
-            <button class="nav-btn">LOCATION SHARING</button>
-            <button class="nav-btn">EMERGENCY SPEED DIAL</button>
-            <button class="nav-btn">MEDICAL REPORTS</button>
+            <button class="nav-btn"><a href="{{ url_for('contactuser') }}">CONTACT</a></button>
+            <button class="nav-btn"><a href="{{ url_for('chatuser') }}">CHAT</a></button>
+            <button class="nav-btn"><a href="{{ url_for('locationuser') }}">LOCATION SHARING</a></button>
+            <button class="nav-btn"><a href="{{ url_for('emergencyuser') }}">EMERGENCY SPEED DIAL</a></button>
+            <button class="nav-btn"><a href="{{ url_for('medicaluser') }}">MEDICAL REPORTS</a></button>
         </div>
 
         <!-- Main Content -->
@@ -33,9 +41,9 @@
                 <h2 class="contacts-title">CONTACTS</h2>
                 <table class="contacts-table">
                     <tr>
-                        <th>No.</th>
                         <th>Name</th>
                         <th>Contact Number</th>
+                        <th>Remove Number</th>
                     </tr>
                     {% for contact in contacts %}
                     <tr>
