@@ -1,0 +1,282 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e5e5e5;
+}
+
+/* Container Layout */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 200px;
+    background-color: #e3b9c4;
+    padding: 20px;
+    text-align: center;
+}
+
+.sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+.nav-btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #c98199;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.nav-btn:hover {
+    background-color: #b06988;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #d3d3d3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    background-color: #f4cc75;
+    padding: 15px 20px;
+    border-radius: 10px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-profile img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ddd;
+}
+
+/* Contacts Section */
+.contacts-section {
+    width: 80%;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.contacts-title {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+.contacts-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.contacts-table th, .contacts-table td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+.contacts-table th {
+    background-color: #555;
+    color: white;
+}
+
+/* Buttons */
+.buttons {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.sidebar h2 {
+    color: #972d5d;
+    font-size: 22px;
+    margin-bottom: 20px;
+    font-weight: bold; 
+    text-decoration: none; 
+    transition: color 0.3s ease;
+}
+
+a {
+    text-decoration: none; /* Removes the underline */
+}
+
+
+.sidebar h2:hover {
+    color: #000000; 
+}
+
+.back-btn, .add-btn {
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.back-btn {
+    background-color: #b8867b;
+    color: white;
+}
+
+.add-btn {
+    background-color: #e3b9c4;
+    color: black;
+}
+/* ////////////////////////////// */
+/* Hide the popup initially */
+.popup-container {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style for the popup content */
+.popup-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Close button style */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+}
+
+/* Form input fields */
+.popup-content input {
+    width: 90%; /* Adjust width to fit within the container */
+    padding: 10px;
+    margin: 10px 0; /* Adjust margin for better spacing */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Add Contact Button */
+.popup-content .add-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 90%; /* Adjust width to fit within the container */
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px; /* Add margin for spacing */
+}
+
+.popup-content .add-btn:hover {
+    background: #45a049;
+}
+
+/* Center the buttons */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%; /* Ensure buttons container takes full width */
+}
+
+/* Back and Add Buttons */
+.back-btn, .add-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.back-btn {
+    background: #888;
+    color: white;
+}
+
+.add-btn {
+    background: #007BFF;
+    color: white;
+}
+
+.add-btn:hover {
+    background: #0056b3;
+}
+
+/* When the popup is active, show it */
+.popup-container.active {
+    display: flex;
+}
+
+/* Upload Button */
+.upload-report-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.upload-btn {
+    background-color: #b8867b;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.upload-btn:hover {
+    background-color: #a5736a;
+}
+
+
+.contacts-table tr:hover {
+    background-color: #e3e3e3;
+}

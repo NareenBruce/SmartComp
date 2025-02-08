@@ -1,0 +1,149 @@
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Container */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #e0b0c4;
+    padding: 20px;
+    text-align: center;
+}
+
+.sidebar h2 {
+    color: #972d5d;
+    font-size: 22px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.side-btn {
+    width: 100%;
+    background-color: #d393a3;
+    border: none;
+    padding: 10px;
+    margin: 8px 0;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.side-btn:hover {
+    background-color: #b37b8c;
+}
+
+.sidebar h2:hover {
+    color: #000000;
+}
+
+/* Main Content */
+.profile-section {
+    flex-grow: 1;
+    padding: 40px;
+    text-align: center;
+    background-color: #e5e5e5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.header {
+    background-color: #f4cc75;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+    width: 80%;
+}
+
+/* Location Container */
+.location-container {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 60%;
+}
+
+.share-btn {
+    background: #9e8b6b;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    cursor: pointer;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px auto;
+}
+
+.share-btn:hover {
+    background-color: #7a6a55;
+}
+
+.info-text {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #333;
+    background-color: #a9826d;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    color: white;
+    text-align: center;
+}
+
+/* Get Location Section */
+.get-location-container {
+    margin-top: 30px;
+    background: #f6e5c1;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 60%;
+}
+
+.get-location-container input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 250px;
+    margin-bottom: 10px;
+}
+
+.get-location-container button {
+    background-color: #7c997b;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 200px;
+}
+
+.get-location-container button:hover {
+    background-color: #5e7963;
+}

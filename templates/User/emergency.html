@@ -1,44 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Smart Companion | Emergency Speed Dial</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="static/user.css">
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <title>Contacts - Smart Companion App</title>
+    <link rel="stylesheet" href="static/contact.css">
 </head>
-<header>
-    <div class="header">
-        <h1>
-           <a href="User/userhomepage.html">SMART COMPANION</a>
-        </h1>
-    </div>
-</header>
 <body>
-    <div class="title">
-        <h1>Emergency Speed Dial</h1>
-    </div>
-    <div class="emergency-item">
-        <img src="images/hosp-icon.png" alt="Hospital">
-        <h3>Hospital</h3>
-        <button class="emergency-btn">Message & Send Location</button>
-    </div>
-    <div class="emergency-item">
-        <img src="images/police-icon.png" alt="Police">
-        <h3>Police</h3>
-        <button class="emergency-btn">Message & Send Location</button>
-    </div>
-    <div class="emergency-item">
-        <img src="images/caretaker-icon.png" alt="Caretaker">
-        <h3>Caretaker</h3>
-        <button class="emergency-btn">Message & Send Location</button>
-    </div>
-    <div class="emergency-item">
-        <img src="images/family-icon.png" alt="Family">
-        <h3>Next of Kin</h3>
-        <button class="emergency-btn">Message & Send Location</button>
-    </div>
+    
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('contactuser') }}"><button class="nav-btn">CONTACT</button></a>
+            <a href="{{ url_for('chatuser') }}"><button class="nav-btn">CHAT</button></a>
+            <a href="{{ url_for('locationuser') }}"><button class="nav-btn">LOCATION SHARING</button></a>
+            <a href="{{ url_for('emergencyuser') }}"><button class="nav-btn">EMERGENCY SPEED DIAL</button></a>
+            <a href="{{ url_for('medicaluser') }}"><button class="nav-btn">MEDICAL REPORTS</button></a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+                <div class="user-profile">
+                    <a href="{{ url_for('userprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
+                </div>
+            </div>
+
+            <!-- Emergency Speed Dial Section -->
+            <div class="contacts-section">
+            <h2 class="contacts-title">EMERGENCY SPEED DIAL</h2>
+             <div>
+                <a id="whatsappLink" target="_blank">
+                    <button type="button" onclick="sendEmergencyMessage()">Emergency Button</button>
+                </a>
+                
+                <script>
+                    function sendEmergencyMessage() {
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition((position) => {
+                                let latitude = position.coords.latitude;
+                                let longitude = position.coords.longitude;
+                
+                                let message = encodeURIComponent(
+                                    "!! Emergency Alert! Please help me. !!\n" +
+                                    "My current location is:\n" +
+                                    `https://www.google.com/maps?q=${latitude},${longitude}`
+                                );
+                
+                                let phoneNumber = "6{{ contacts }}"; // Replace with actual number
+                                let whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+                                
+                                document.getElementById("whatsappLink").href = whatsappURL;
+                                document.getElementById("whatsappLink").click(); // Auto open link
+                            });
+                        } else {
+                            alert("Geolocation is not supported by your browser.");
+                        }
+                    }
+                </script>
+             </div>
+            </div>
+             <p>Click the button in case of emergency, this would
+                send a SOS Emergency message to your caretaker.
+             </p>
 </body>
-<footer>
-    &copy; 2024 Smart Companion Application | Group 2 T18L
-</footer>
 </html>

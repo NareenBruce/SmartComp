@@ -20,11 +20,11 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
-            <button class="nav-btn"><a href="{{ url_for('contactuser') }}">CONTACT</a></button>
-            <button class="nav-btn"><a href="{{ url_for('chatuser') }}">CHAT</a></button>
-            <button class="nav-btn"><a href="{{ url_for('locationuser') }}">LOCATION SHARING</a></button>
-            <button class="nav-btn"><a href="{{ url_for('emergencyuser') }}">EMERGENCY SPEED DIAL</a></button>
-            <button class="nav-btn"><a href="{{ url_for('medicaluser') }}">MEDICAL REPORTS</a></button>
+            <a href="{{ url_for('contactuser') }}"><button class="nav-btn">CONTACT</button></a>
+            <a href="{{ url_for('chatuser') }}"><button class="nav-btn">CHAT</button></a>
+            <a href="{{ url_for('locationuser') }}"><button class="nav-btn">LOCATION SHARING</button></a>
+            <a href="{{ url_for('emergencyuser') }}"><button class="nav-btn">EMERGENCY SPEED DIAL</button></a>
+            <a href="{{ url_for('medicaluser') }}"><button class="nav-btn">MEDICAL REPORTS</button></a>
         </div>
 
         <!-- Main Content -->
@@ -32,7 +32,7 @@
             <div class="header">
                 <h1>SMART COMPANION APP</h1>
                 <div class="user-profile">
-                    <img src="{{ image_url }}" alt="Profile Picture" class="profile-img">
+                    <a href="{{ url_for('userprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
                 </div>
             </div>
 

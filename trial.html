@@ -1,63 +1,67 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacts - Smart Companion App</title>
-    <link rel="stylesheet" href="trials.css">
+    <title>Share My Location</title>
 </head>
 <body>
+    <h2>Click the button to share your location</h2>
+    <button onclick="shareLocation()">Share Location</button>
+    <p id="status"></p>
 
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
-            <button class="nav-btn">CONTACT</button>
-            <button class="nav-btn">CHAT</button>
-            <button class="nav-btn">LOCATION SHARING</button>
-            <button class="nav-btn">EMERGENCY SPEED DIAL</button>
-            <button class="nav-btn">MEDICAL REPORTS</button>
-        </div>
+    <h2>Get User Location</h2>
+<input type="text" id="userIdInput" placeholder="Enter User ID">
+<button onclick="getUserLocation()">Get Location</button>
+<p id="userLocation"></p>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <h1>SMART COMPANION APP</h1>
-                <div class="user-profile">
-                    <span>ROXANNE</span>
-                    <img src="user-icon.png" alt="User Profile">
-                </div>
-            </div>
+<script>
+    function getUserLocation() {
+        let userId = document.getElementById("userIdInput").value;
+        fetch(`/get_location/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.latitude && data.longitude) {
+                    document.getElementById("userLocation").innerText = `User ${userId} is at Latitude: ${data.latitude}, Longitude: ${data.longitude}`;
+                } else {
+                    document.getElementById("userLocation").innerText = "Location not found!";
+                }
+            })
+            .catch(error => console.error(error));
+    }
+</script>
 
-            <!-- Contacts Section -->
-            <div class="contacts-section">
-                <h2 class="contacts-title">CONTACTS</h2>
-                <table class="contacts-table">
-                    <tr>
-                        <th>No.</th>
-                        <th>Name</th>
-                        <th>Contact Number</th>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>Abu</td>
-                        <td>012-8854509</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jayan</td>
-                        <td>011-4430589</td>
-                    </tr>
-                </table>
-            </div>
 
-            <!-- Buttons -->
-            <div class="buttons">
-                <button class="back-btn">BACK</button>
-                <button class="add-btn">ADD CONTACTS</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        function shareLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        let latitude = position.coords.latitude;
+                        let longitude = position.coords.longitude;
+                        document.getElementById("status").innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
 
+                        // Send location to Flask backend
+                        fetch("/update_location", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                user_id: "User123",  // Replace with actual user ID
+                                latitude: latitude,
+                                longitude: longitude
+                            })
+                        }).then(response => response.json())
+                          .then(data => console.log(data))
+                          .catch(error => console.error(error));
+                    },
+                    (error) => {
+                        document.getElementById("status").innerText = "Error fetching location!";
+                    }
+                );
+            } else {
+                document.getElementById("status").innerText = "Geolocation is not supported in this browser.";
+            }
+        }
+    </script>
 </body>
-</html>
+</html> -->

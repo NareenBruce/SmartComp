@@ -1,21 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Smart Companion | Send Location</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="static/user.css">
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <title>Contacts - Smart Companion App</title>
+    <link rel="stylesheet" href="static/contact.css">
 </head>
-<header>
-    <div class="header">
-        <h1>
-           <a href="User/userhomepage.html">SMART COMPANION</a>
-        </h1>
-    </div>
-</header>
 <body>
+    
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('contactuser') }}"><button class="nav-btn">CONTACT</button></a>
+            <a href="{{ url_for('chatuser') }}"><button class="nav-btn">CHAT</button></a>
+            <a href="{{ url_for('locationuser') }}"><button class="nav-btn">LOCATION SHARING</button></a>
+            <a href="{{ url_for('emergencyuser') }}"><button class="nav-btn">EMERGENCY SPEED DIAL</button></a>
+            <a href="{{ url_for('medicaluser') }}"><button class="nav-btn">MEDICAL REPORTS</button></a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+                <div class="user-profile">
+                    <a href="{{ url_for('userprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
+                </div>
+            </div>
+
+            <!-- Location Sharing Section -->
+            
+            <div class="contacts-section">
+                <div class="top-bar">
+                   <h2 class="contacts-title">SHARE LOCATION</h2>
+                </div>
+                <div class="location-container">
+                    <div class="box">
+                        <button class="share-btn" onclick="shareLocation()">
+                            <span>SHARE LOCATION</span>
+                        </button>
+                        <p id="status" class="info-text">CLICKING THE BUTTON ABOVE WILL SHARE YOUR CURRENT LOCATION WITH CARETAKER</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        function shareLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        let latitude = position.coords.latitude;
+                        let longitude = position.coords.longitude;
+                        document.getElementById("status").innerText = `Latitude: ${latitude}, Longitude: ${longitude}, Location shared successfully!`;
+
+                        // Send location to Flask backend
+                        fetch("/update_location", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                latitude: latitude,
+                                longitude: longitude
+                            })
+                        }).then(response => response.json())
+                          .then(data => console.log(data))
+                          .catch(error => console.error(error));
+                    },
+                    (error) => {
+                        document.getElementById("status").innerText = "Error fetching location!";
+                    }
+                );
+            } else {
+                document.getElementById("status").innerText = "Geolocation is not supported in this browser.";
+            }
+        }
+    </script>
 </body>
-<footer>
-    &copy; 2024 Smart Companion Application | Group 2 T18L
-</footer>
 </html>

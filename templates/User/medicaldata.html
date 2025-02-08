@@ -1,57 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Smart Companion | Medical Data</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="static/user.css">
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <title>Medical Reports - Smart Companion App</title>
+    <link rel="stylesheet" href="static/medical.css">
 </head>
-<header>
-    <div class="header">
-        <h1>
-           <a href="User/userhomepage.html">SMART COMPANION</a>
-        </h1>
-    </div>
-</header>
 <body>
-    <div class="title">
-        <h1>Medical Data</h1>
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('contactuser') }}"><button class="nav-btn">CONTACT</button></a>
+            <a href="{{ url_for('chatuser') }}"><button class="nav-btn">CHAT</button></a>
+            <a href="{{ url_for('locationuser') }}"><button class="nav-btn">LOCATION SHARING</button></a>
+            <a href="{{ url_for('emergencyuser') }}"><button class="nav-btn">EMERGENCY SPEED DIAL</button></a>
+            <a href="{{ url_for('medicaluser') }}"><button class="nav-btn">MEDICAL REPORTS</button></a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+                <div class="user-profile">
+                    <a href="{{ url_for('userprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
+                </div>
+            </div>
+
+            <!-- Medical Data Table Section-->
+            <div class="contacts-section">
+                <div class="top-bar">
+                    <div class="contacts-title">MEDICAL REPORTS</div>
+                </div>
+                <div class="medical-table-container">
+                    <table class="contacts-table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Uploaded Date</th>
+                                <th>Medical Report PDF</th>
+                                <th>Remove Report</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in medical_data %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ report[3] }}</td>
+                                <td><a href="{{ url_for('static', filename='report/user/' + report[4]) }}" target="_blank">{{ report[4] }}</a></td>
+                                <td><a href="/deletemedical?report={{ report[4] }}" class="edit-btn">REMOVE</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="upload-report-container">
+                    <form action="/uploadmedical" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="medical_report" accept=".pdf" required>
+                        <button type="submit" class="upload-btn">UPLOAD REPORT</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="patient-info">
-    <h2>Patient Information</h2>
-    <br>
-        <p><strong>Name:</strong> </p>
-        <p><strong>Age:</strong> </p>
-        <p><strong>Gender:</strong> </p>
-        <p><strong>Contact:</strong> </p>
-        <p><strong>Location:</strong> </p>
-        <p><strong>Past History:</strong> </p>
-        <p><strong>Illness:</strong> </p>
-    </div>
-
-    <h3>Medication Details</h3>
-
-    <table>
-        <tr> 
-            <th>Date</th>
-            <th>Diagnosis</th>
-            <th>Prescription</th> 
-            <th>Dosage</th>
-        </tr>
-
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td> 
-            <td> </td>
-        </tr>
-    </table>
-    <button class="update-info">Update Information</button>
 </body>
-<br>
-<br>
-<footer>
-    &copy; 2024 Smart Companion Application | Group 2 T18L
-</footer>
 </html>

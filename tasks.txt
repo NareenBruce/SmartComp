@@ -26,3 +26,6 @@ Check the if your name exist?
 If yes copy the code in your name file
 
 Or else create a new one
+
+location:
+when Nareen click the button, the location is shown in Hana's Patient Location Page, Hana can delete it if she wants, if she clicks it will direct in google

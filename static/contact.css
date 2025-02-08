@@ -88,6 +88,11 @@ body {
     text-align: center;
 }
 
+.contacts-table tr:hover {
+    background-color: #e3e3e3;
+}
+
+
 .contacts-title {
     background-color: #333;
     color: white;

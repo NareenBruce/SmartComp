@@ -1,8 +1,10 @@
 import os
-from flask import Flask, flash, render_template, request, redirect, url_for,g, session
+from flask import Flask, flash, render_template, request, redirect, url_for,g, session, jsonify
 import sqlite3
+import time
 from flask_socketio import join_room, leave_room, send, SocketIO
 import random
+import re 
 from string import ascii_uppercase
 from werkzeug.utils import secure_filename
 
@@ -25,6 +27,14 @@ def generate_unique_code(length):
             break
     
     return code
+
+MEDICAL_REPORTS_FOLDER = "static/report/user"  # Define a unique variable name
+os.makedirs(MEDICAL_REPORTS_FOLDER, exist_ok=True)  # Ensure folder exists
+ALLOWED_EXTENSION = {'pdf'}  # Only allow PDF files
+
+def allowed_files(filename):
+    """Check if file has an allowed extension (PDF)."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
 
 
 UPLOAD_FOLDER = 'static/uploads'
@@ -82,21 +92,38 @@ def create_table():
             rel_id INTEGER NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS locations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            latitude REAL NOT NULL,
+            longitude REAL NOT NULL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS medical_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            uploaded_date TEXT NOT NULL,
+            pdf_name TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
-def get_contact_info(contact_name):
+def get_contact_info(contact_num):
     """Fetch user ID and name from `user` or `caretaker` table."""
     db = get_db()  # Get a new database connection for this request
     cursor = db.cursor()
 
     # Check in `user` table first
-    cursor.execute("SELECT id, name FROM user WHERE name=?", (contact_name,))
+    cursor.execute("SELECT id, name FROM user WHERE ph_num=?", (contact_num,))
     result = cursor.fetchone()
 
     # If not found, check in `caretaker` table
     if not result:
-        cursor.execute("SELECT id, name FROM caretaker WHERE name=?", (contact_name,))
+        cursor.execute("SELECT id, name FROM caretaker WHERE ph_num=?", (contact_num,))
         result = cursor.fetchone()
 
     return result  # Returns (id, name) or None
@@ -221,6 +248,12 @@ def usersignup():
         if password != confirm_password:
             flash("Passwords do not match")
             return redirect("/usersignup")
+        
+        # Validate phone number (only digits allowed)
+        if not re.match(r"^\d+$", phone):
+            flash("Invalid phone number! Only numbers (0-9) are allowed, no spaces or symbols.")
+            return redirect("/usersignup")
+        
         try: 
             #check if alr exists
             cursor.execute('SELECT * FROM user WHERE username=? AND password=?', (username,password))
@@ -373,6 +406,17 @@ def addcontact():
         user_id = session.get('user_id')
         name = request.form["name"]
         contact_number = request.form["contact_number"]
+        #check if the contact number exist in caretaker or user table
+        cursor.execute("SELECT * FROM user WHERE ph_num=?", (contact_number,))
+        user = cursor.fetchone()
+        if user is None:
+            cursor.execute("SELECT * FROM caretaker WHERE ph_num=?", (contact_number,))
+            caretaker = cursor.fetchone()
+            user = caretaker
+            if caretaker is None:
+                flash("Contact number does not exist")
+                return redirect("/contactuser")
+        
         ##check if contact already exists
         cursor.execute('SELECT * FROM contact WHERE contact_number=? AND rel_id=?', (contact_number, user_id))
         existing_contact= cursor.fetchone()
@@ -393,7 +437,6 @@ def deletecontact():
     cursor = db.cursor()
     
     contact_number= request.args.get('contact_number')
-    print(contact_number)
     user_id = session.get('user_id')
     cursor.execute('DELETE FROM contact WHERE contact_number=? AND rel_id=?', (contact_number, user_id))
     db.commit()
@@ -424,13 +467,9 @@ def chatuser():
     contact_number = request.args.get('contact')
     if contact_number:
         str_contact_number = str(contact_number)
-
-        # Fetch the contact's name using the phone number
-        cursor.execute("SELECT name FROM contact WHERE contact_number=?", (str_contact_number,))
-        contact_name = cursor.fetchone()[0]
-
+        contact_num=str_contact_number
         # Fetch the user ID and name from either `user` or `caretaker` table
-        result = get_contact_info(contact_name)
+        result = get_contact_info(contact_num)
 
         if not result:
             return "User not found", 404
@@ -439,23 +478,44 @@ def chatuser():
 
         # Fetch current user's name (Nareen)
         cursor.execute("SELECT name FROM user WHERE id=?", (user_id,))
-        name = cursor.fetchone()[0]
+        name = cursor.fetchone()
+        
+        if not name:
+            cursor.execute("SELECT name FROM caretaker WHERE id=?", (user_id,))
+            name = cursor.fetchone()
+        
+        name = name[0] if name else None
 
-        # Ensure user-specific folder exists
-        user_folder = f"static/room_log/user/{user_id}/"
+        # Determine user's folder (User or Caretaker)
+        if name:
+            user_folder = f"static/room_log/user/{user_id}/"
+        else:
+            user_folder = f"static/room_log/caretaker/{user_id}/"
+        
         os.makedirs(user_folder, exist_ok=True)
-
+        
+        # Define recipient's folder based on their type
+        cursor.execute("SELECT id FROM user WHERE id=?", (contact_id,))
+        recipient_is_user = cursor.fetchone() is not None
+        
+        if recipient_is_user:
+            contact_folder = f"static/room_log/user/{contact_id}/"
+        else:
+            contact_folder = f"static/room_log/caretaker/{contact_id}/"
+        
+        os.makedirs(contact_folder, exist_ok=True)
+        
         # Define recipient's room file path (using contact's name)
         room_file_path = os.path.join(user_folder, f"{contact_name}.txt")
-
+        contact_room_file = os.path.join(contact_folder, f"{name}.txt")
+        
         room_number = None  # Initialize room_number variable
-
+        
         # Check if a chat room file exists for this contact
         if os.path.exists(room_file_path):
             with open(room_file_path, "r") as file:
                 lines = file.readlines()
-
-            # Check if the current user already has a room with this contact
+            
             for line in lines:
                 user_id_in_file, saved_room = line.strip().split(":")
                 if user_id_in_file == str(user_id):  # Found an existing room
@@ -468,17 +528,12 @@ def chatuser():
 
             # Store the chat room in both users' folders
             with open(room_file_path, "w") as file:
-                file.write(f"{user_id}:{room_number}\n")   # Store Nareen's ID & room number
+                file.write(f"{user_id}:{room_number}\n")   # Store current user's ID & room number
                 file.write(f"{contact_id}:{room_number}\n")  # Store Contact's ID & room number
             
-            # Also save in the contact’s folder (for Caretaker or User)
-            contact_folder = f"static/room_log/user/{contact_id}/"
-            os.makedirs(contact_folder, exist_ok=True)
-            contact_room_file = os.path.join(contact_folder, f"{name}.txt")  # Save as "Nareen.txt"
-
             with open(contact_room_file, "w") as file:
                 file.write(f"{contact_id}:{room_number}\n")   # Store Contact's ID & room number
-                file.write(f"{user_id}:{room_number}\n")   # Store Nareen's ID & room number
+                file.write(f"{user_id}:{room_number}\n")   # Store current user's ID & room number
 
         # Ensure room exists in the `rooms` dictionary
         if room_number not in rooms:
@@ -524,15 +579,120 @@ def disconnect():
 
 @app.route("/locationuser")
 def locationuser():
-    return "location user"
+    #To display image
+    user_id = session.get('user_id')
+    str_user_id = str(user_id)
+    with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    return render_template("User/location.html", image_url=image_url)
+
+@app.route("/update_location", methods=["POST"])
+def update_location():
+    data = request.json
+    user_id = session.get('user_id')
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
+    
+    if user_id and latitude and longitude:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("INSERT INTO locations (user_id, latitude, longitude) VALUES (?, ?, ?)", (user_id, latitude, longitude))
+        db.commit()
+        return jsonify({"message": "Location updated successfully!"}), 200
+        
+    else:
+        flash("Location share failed")
+        return jsonify({"error": "Invalid data"}), 400
 
 @app.route("/emergencyuser")
 def emergencyuser():
-    return "emergency user"
+    db= get_db()
+    cursor = db.cursor()
+    user_id = session.get('user_id')
+    
+     #To display image
+    user_id = session.get('user_id')
+    str_user_id = str(user_id)
+    with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #cursor.execute("SELECT ph_num FROM assign where user_id = ?", (user_id,))
+    #contacts = cursor.fetchall()[0]
+    contacts= "0167459771"
+    return render_template("User/emergency.html", image_url=image_url, contacts=contacts)
 
 @app.route("/medicaluser")
 def medicaluser():
-    return "medical user"
+    db = get_db()
+    cursor = db.cursor()
+    user_id = session.get('user_id')
+
+    #To display image
+    str_user_id = str(user_id)
+    with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #To display medical reports
+    cursor.execute("SELECT * FROM medical_data WHERE user_id = ?", (str_user_id,))
+    medical_data = cursor.fetchall()
+    return render_template("User/medicaldata.html", image_url=image_url, medical_data=medical_data)
+
+@app.route("/uploadmedical", methods=["GET", "POST"])
+def uploadmedical():
+    db = get_db()
+    cursor = db.cursor()
+    
+    if request.method == "POST":
+        
+        user_id = session.get('user_id')
+        if "medical_report" not in request.files:
+            flash("No file selected!")
+            return redirect(request.url)
+
+        file = request.files["medical_report"]
+
+        if file.filename == "":
+            flash("No file selected!")
+            return redirect(request.url)
+        
+        #Get user's name fro the database
+        cursor.execute("SELECT name FROM user WHERE id = ?", (user_id,))
+        name = cursor.fetchone()[0]
+        
+        str_user_id = str(user_id)
+        if file and allowed_files(file.filename):
+            timestamp = int(time.time())
+            filename = f"{name}_{user_id}_MedicalReport_{timestamp}.pdf"  # Rename to avoid conflicts
+            file_path = os.path.join(MEDICAL_REPORTS_FOLDER, filename)
+            file.save(file_path)  # Save file to folder
+
+            # Store details in database
+            cursor.execute("SELECT name FROM user WHERE id=?", (str_user_id,))
+            name= cursor.fetchone()[0]
+            cursor.execute("""
+                INSERT INTO medical_data (name, user_id, uploaded_date, pdf_name) VALUES (?, ?, DATE('now'), ?)
+            """, (name, user_id, filename))
+            db.commit()
+            flash("Medical report uploaded successfully!")
+            return medicaluser()
+
+    return medicaluser()
+
+@app.route("/deletemedical")
+def deletemedical():
+    db= get_db()
+    cursor = db.cursor()
+    
+    report= request.args.get('report')
+    user_id = session.get('user_id')
+    cursor.execute('DELETE FROM medical_data WHERE pdf_name=? AND user_id=?', (report, user_id))
+    db.commit()
+    db.close()
+    flash("Report deleted successfully!")
+    return redirect(url_for('medicaluser'))
 
 @app.route("/logout")
 def logout():
@@ -562,6 +722,11 @@ def caresignup():
         if password != confirm_password:
             flash("Passwords do not match")
             return redirect("/caresignup")
+        # Validate phone number (only digits allowed)
+        if not re.match(r"^\d+$", phone):
+            flash("Invalid phone number! Only numbers (0-9) are allowed, no spaces or symbols.")
+            return redirect("/usersignup")
+        
         try: 
             #check if already exists
             cursor.execute('SELECT * FROM caretaker WHERE username=? AND password=?', (username,password))
