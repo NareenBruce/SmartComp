@@ -1,25 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Companion | Home Page</title>
-    <link rel="stylesheet" type="text/css" href="static/caretaker.css">
+    <link rel="stylesheet" type="text/css" href="static/user.css">
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
 </head>
 <header>
     <div class="header">
         <h1>
-           <a href="Caretaker/caretakerhomepage.html">SMART COMPANION</a>
+           <a href="">SMART COMPANION</a><br>
+           <div class="title">
+                <h2>Caretaker Homepage</h2>
+            </div>
+           <style>
+            .top-right {
+                position: absolute;
+                top: 0;
+                right: 0;
+                margin: 10px;
+                width: 50px;
+                height: 50px;
+            }
+        </style>
+           <a href="{{ url_for('careprofile') }}"><img src="{{ image_url }}" alt="user profile page" class="top-right"></a>
         </h1>
     </div>
 </header>
 <body>
     <div class="navigation">
-        <div class="box">
-            <a href="Caretaker/patients.html">PATIENTS</a>
-        </div>
-        <div class="box">
-            <a href="User/contact.html">CONTACT</a>
-        </div>
+        <a href="contactcare">
+            <div class="box">
+                CONTACT
+            </div>
+        </a>
+        <a href="chatcare">
+            <div class="box">
+                CHAT
+            </div>
+        </a>
+        <a href="locationcare">
+            <div class="box">
+                PATIENT LOCATION
+            </div>
+        </a>
+        <a href="patientscare">
+            <div class="box">
+                PATIENT LIST
+            </div>
+        </a>
     </div>
 </body>
 <footer>

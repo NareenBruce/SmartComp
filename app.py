@@ -5,6 +5,7 @@ import time
 from flask_socketio import join_room, leave_room, send, SocketIO
 import random
 import re 
+import datetime
 from string import ascii_uppercase
 from werkzeug.utils import secure_filename
 
@@ -96,8 +97,10 @@ def create_table():
         CREATE TABLE IF NOT EXISTS locations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT NOT NULL,
+            name TEXT NOT NULL,
             latitude REAL NOT NULL,
-            longitude REAL NOT NULL
+            longitude REAL NOT NULL,
+            timestamp TEXT NOT NULL
         )
     ''')
     cursor.execute('''
@@ -163,8 +166,8 @@ def login():
             cursor.execute('SELECT * FROM caretaker WHERE username = ? AND password = ?', (username, password))
             if cursor.fetchone() is not None:
                 cursor.execute('SELECT id FROM caretaker WHERE username = ? AND password = ?', (username, password))
-                user_id= cursor.fetchone()[0]
-                session['user_id'] = user_id  # Store user_id in session
+                care_id= cursor.fetchone()[0]
+                session['care_id'] = care_id  # Store user_id in session
                 return redirect(url_for('caretaker'))
         
             cursor.execute('SELECT * FROM user WHERE username = ? AND password = ?', (username, password))
@@ -177,15 +180,15 @@ def login():
             cursor.execute('SELECT * FROM admin WHERE username = ? AND password = ?', (username, password))
             if cursor.fetchone() is not None:
                 cursor.execute('SELECT id FROM admin WHERE username = ? AND password = ?', (username, password))
-                user_id= cursor.fetchone()[0]
-                session['user_id'] = user_id # Store user_id in session
+                admin_id= cursor.fetchone()[0]
+                session['admin_id'] = admin_id # Store user_id in session
                 return redirect(url_for('admin'))
             
             cursor.execute('SELECT * FROM super_admin WHERE username = ? AND password = ?', (username, password))
             if cursor.fetchone() is not None:
                 cursor.execute('SELECT id FROM super_admin WHERE username = ? AND password = ?', (username, password))
-                user_id= cursor.fetchone()[0]
-                session['user_id'] = user_id  # Store user_id in session
+                sa_id= cursor.fetchone()[0]
+                session['sa_id'] = sa_id  # Store user_id in session
                 return redirect(url_for('superadmin'))
             else:
                 flash("Invalid username or password")
@@ -593,11 +596,17 @@ def update_location():
     user_id = session.get('user_id')
     latitude = data.get("latitude")
     longitude = data.get("longitude")
+    timestamp = int(time.time())
+    newtime= datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
     
+
     if user_id and latitude and longitude:
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO locations (user_id, latitude, longitude) VALUES (?, ?, ?)", (user_id, latitude, longitude))
+        #get user name
+        cursor.execute("SELECT name FROM user WHERE id = ?", (user_id,))
+        name= cursor.fetchone()[0]
+        cursor.execute("INSERT INTO locations (user_id, name, latitude, longitude, timestamp) VALUES (?, ?, ?, ?, ?)", (user_id, name, latitude, longitude, newtime))
         db.commit()
         return jsonify({"message": "Location updated successfully!"}), 200
         
@@ -703,7 +712,20 @@ def logout():
 #this is the caretaker login route and method
 @app.route("/caretaker")
 def caretaker():
-    return render_template("Caretaker/caretakerhomepage.html")
+    care_id = session.get('care_id')
+    str_care_id = str(care_id)
+    
+    with open("static/img_log/caretaker/"+ str_care_id + ".txt", "a+") as file:
+        file.seek(0)
+        image_name = str(file.read())
+        if image_name:
+            image_url= url_for('static', filename='uploads/'+ image_name )
+        else:
+            image_name = "user.jpg"
+            image_url= url_for('static', filename='uploads/'+ image_name )
+            file.write(image_name)  # Store the value
+                
+    return render_template("Caretaker/caretakerhomepage.html", image_url=image_url, image_name=image_name)
 
 @app.route("/caresignup", methods= ["GET", "POST"])
 def caresignup():
@@ -748,6 +770,313 @@ def caresignup():
             db.close()
     return render_template("Caretaker/c_signup.html")
 
+@app.route("/careprofile",  methods=["GET", "POST"])
+def careprofile():
+    db = get_db()
+    cursor = db.cursor()
+    
+    care_id = session.get('care_id')
+    str_care_id = str(care_id)
+    if not care_id:
+        return redirect(url_for('login'))
+    
+    cursor.execute('SELECT * FROM caretaker WHERE id = ?',(care_id,))
+    caretaker = cursor.fetchone()
+    db.close()
+    
+    with open("static/img_log/caretaker/"+ str_care_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("Caretaker/c_profile.html", caretaker=caretaker, image_url=image_url, image_name=image_name)
+
+@app.route("/editcare", methods=["GET", "POST"])
+def editcare():
+    if request.method == 'POST':
+        # Check if the form contains a file
+        if 'image' not in request.files:
+            return 'No file part'
+        
+        file = request.files['image']
+        
+        # Check if the file is allowed
+        if file and allowed_file(file.filename):
+            # Secure the filename (to prevent directory traversal attacks)
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            # Check if there is an existing image, and remove it if it exists
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            
+            # Save the new file
+            file.save(file_path)
+            image_name=filename
+           
+            care_id = session.get('care_id')
+            str_care_id = str(care_id)
+            
+            with open("static/img_log/caretaker/"+ str_care_id + ".txt", "r") as file:
+                x = str(file.read())
+                if x == image_name:
+                    return careprofile()
+                else:
+                    with open("static/img_log/caretaker/"+ str_care_id + ".txt", "w") as file:
+                        file.write(image_name)  # Store the value
+                    return careprofile()
+        
+        #Enter the saved data into the database
+        db = get_db()
+        cursor = db.cursor()
+        
+        care_id = session.get('care_id')
+        
+        if request.method == "POST":
+            name = request.form["name"].strip()
+            age = request.form["age"].strip()
+            gender = request.form["gender"].strip()
+            username = request.form["username"].strip()
+            password = request.form["password"].strip()
+            contact = request.form["contact"].strip()
+            
+            update_fields = {}
+            if name:
+                update_fields["name"] = name
+            if age:
+                update_fields["age"] = age
+            if gender:
+                update_fields["gender"] = gender
+            if username:
+                update_fields["username"] = username
+            if password:
+                update_fields["password"] = password
+            if contact:
+                update_fields["ph_num"] = contact
+            
+            if update_fields:  # Update only if there are changes
+                update_query = "UPDATE caretaker SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
+                db.execute(update_query, tuple(update_fields.values()) + (care_id,))
+                db.commit()
+                db.close()
+            
+            return redirect(url_for("careprofile"))
+    
+    return redirect("/careprofile")  # Render the profile page
+
+@app.route("/removecare", methods=["GET", "POST"])
+def removecare():
+    db = get_db()
+    cursor = db.cursor()
+    care_id = session.get('care_id')
+
+    cursor.execute('DELETE FROM caretaker WHERE id = ?', (care_id,))
+    db.commit()
+    db.close()
+    flash("Account deleted successfully", "success")
+    return redirect(url_for('signup'))
+
+@app.route("/clogout")
+def clogout():
+    session.pop('care_id', None)
+    return redirect(url_for('login'))
+
+@app.route("/contactcare", methods=["GET", "POST"])
+def contactcare():
+    db= get_db()
+    cursor = db.cursor()
+    
+    #To display image
+    care_id = session.get('care_id')
+    str_care_id = str(care_id)
+    with open("static/img_log/caretaker/"+ str_care_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #To display contacts
+    cursor.execute("SELECT * FROM contact where rel_id = ?", (care_id,))
+    contacts_list = cursor.fetchall()  # Fetch all matching rows
+    db.close()
+    return render_template("Caretaker/contact.html", image_url=image_url, contacts=contacts_list)
+
+@app.route("/addcontactcare", methods=["GET", "POST"])
+def addcontactcare():
+    db= get_db()
+    cursor = db.cursor()
+    
+    if request.method == "POST":
+        care_id = session.get('care_id')
+        name = request.form["name"]
+        contact_number = request.form["contact_number"]
+        #check if the contact number exist in caretaker or user table
+        cursor.execute("SELECT * FROM user WHERE ph_num=?", (contact_number,))
+        user = cursor.fetchone()
+        if user is None:
+            cursor.execute("SELECT * FROM caretaker WHERE ph_num=?", (contact_number,))
+            caretaker = cursor.fetchone()
+            user = caretaker
+            if caretaker is None:
+                flash("Contact number does not exist")
+                return redirect("/contactcare")
+        
+        ##check if contact already exists
+        cursor.execute('SELECT * FROM contact WHERE contact_number=? AND rel_id=?', (contact_number, care_id))
+        existing_contact= cursor.fetchone()
+        if existing_contact is not None:
+            flash ("Contact already exists")
+            return redirect("/contactcare")
+        else:
+            cursor.execute('INSERT INTO contact (name, contact_number, rel_id) VALUES (?, ?, ?)', (name, contact_number, care_id))
+            db.commit()
+            db.close()
+            return redirect(url_for('contactcare'))
+    return redirect(url_for('contactcare'))
+
+@app.route("/deletecontactcare")
+def deletecontactcare():
+    db= get_db()
+    cursor = db.cursor()
+    
+    contact_number= request.args.get('contact_number')
+    care_id = session.get('care_id')
+    cursor.execute('DELETE FROM contact WHERE contact_number=? AND rel_id=?', (contact_number, care_id))
+    db.commit()
+    db.close()
+    flash("Contact deleted successfully!")
+    return redirect(url_for('contactcare'))
+    
+@app.route("/chatcare", methods=["GET", "POST"])
+def chatcare():
+    db= get_db()
+    cursor = db.cursor()
+    
+    #To display image
+    care_id = session.get('care_id')
+    str_care_id = str(care_id)
+    with open("static/img_log/caretaker/"+ str_care_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #To display contacts
+    cursor.execute("SELECT * FROM contact where rel_id = ?", (care_id,))
+    contacts_list = cursor.fetchall()  # Fetch all matching rows
+    db.commit()
+    
+    #For Chat
+    contact_number = request.args.get('contact')
+    if contact_number:
+        str_contact_number = str(contact_number)
+        contact_num=str_contact_number
+        # Fetch the user ID and name from either `user` or `caretaker` table
+        result = get_contact_info(contact_num)
+
+        if not result:
+            return "User not found", 404
+
+        contact_id, contact_name = result  # Extract ID and Name
+
+        # Fetch current user's name (Nareen)
+        cursor.execute("SELECT name FROM caretaker WHERE id=?", (care_id,))
+        name = cursor.fetchone()
+        
+        if not name:
+            cursor.execute("SELECT name FROM user WHERE id=?", (care_id,))
+            name = cursor.fetchone()
+        
+        name = name[0] if name else None
+
+        # Determine user's folder (User or Caretaker)
+        if name:
+            user_folder = f"static/room_log/caretaker/{care_id}/"
+        else:
+            user_folder = f"static/room_log/user/{care_id}/"
+        
+        os.makedirs(user_folder, exist_ok=True)
+        
+        # Define recipient's folder based on their type
+        cursor.execute("SELECT id FROM user WHERE id=?", (contact_id,))
+        recipient_is_user = cursor.fetchone() is not None
+        
+        if recipient_is_user:
+            contact_folder = f"static/room_log/user/{contact_id}/"
+        else:
+            contact_folder = f"static/room_log/caretaker/{contact_id}/"
+        
+        os.makedirs(contact_folder, exist_ok=True)
+        
+        # Define recipient's room file path (using contact's name)
+        room_file_path = os.path.join(user_folder, f"{contact_name}.txt")
+        contact_room_file = os.path.join(contact_folder, f"{name}.txt")
+        
+        room_number = None  # Initialize room_number variable
+        
+        # Check if a chat room file exists for this contact
+        if os.path.exists(room_file_path):
+            with open(room_file_path, "r") as file:
+                lines = file.readlines()
+            
+            for line in lines:
+                user_id_in_file, saved_room = line.strip().split(":")
+                if user_id_in_file == str(care_id):  # Found an existing room
+                    room_number = saved_room
+                    break
+
+        # If no room exists, generate a new one
+        if not room_number:
+            room_number = generate_unique_code(4)
+
+            # Store the chat room in both users' folders
+            with open(room_file_path, "w") as file:
+                file.write(f"{care_id}:{room_number}\n")   # Store current user's ID & room number
+                file.write(f"{contact_id}:{room_number}\n")  # Store Contact's ID & room number
+            
+            with open(contact_room_file, "w") as file:
+                file.write(f"{contact_id}:{room_number}\n")   # Store Contact's ID & room number
+                file.write(f"{care_id}:{room_number}\n")   # Store current user's ID & room number
+
+        # Ensure room exists in the `rooms` dictionary
+        if room_number not in rooms:
+            rooms[room_number] = {"members": 0, "messages": []}
+
+        db.commit()
+
+        # Store room info in session
+        session["room"] = room_number
+        session["name"] = name
+
+        return render_template("Caretaker/room.html", contact_number=contact_number, contact_name=contact_name)
+
+    return render_template("Caretaker/chat.html", image_url=image_url, contacts=contacts_list)
+
+@app.route("/locationcare", methods=["GET", "POST"])
+def locationcare():
+    db = get_db()
+    cursor = db.cursor()
+    care_id = session.get('care_id')
+    str_care_id = str(care_id)
+    
+    cursor.execute("SELECT * FROM locations")
+    location_list = cursor.fetchall()  # Fetch all matching rows
+    db.close()
+    with open("static/img_log/caretaker/"+ str_care_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("Caretaker//location.html", image_url=image_url, contacts=location_list)
+
+@app.route("/deletelocationcare")
+def deletelocationcare():
+    db= get_db()
+    cursor = db.cursor()
+    
+    timestamp= request.args.get('time_number')
+    str_timestamp = str(timestamp)
+    cursor.execute('DELETE FROM locations WHERE timestamp=?', (str_timestamp,))
+    db.commit()
+    db.close()
+    flash("Location deleted successfully!")
+    return redirect(url_for('locationcare'))
+
+@app.route("/patientscare", methods=["GET", "POST"])
+def patientscare():
+    return "patientscare"
 #this is the part of code that runs the app
 if __name__ == "__main__":
     create_table()

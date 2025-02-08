@@ -19,12 +19,11 @@
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
-            <a href="{{ url_for('contactuser') }}"><button class="nav-btn">CONTACT</button></a>
-            <a href="{{ url_for('chatuser') }}"><button class="nav-btn">CHAT</button></a>
-            <a href="{{ url_for('locationuser') }}"><button class="nav-btn">LOCATION SHARING</button></a>
-            <a href="{{ url_for('emergencyuser') }}"><button class="nav-btn">EMERGENCY SPEED DIAL</button></a>
-            <a href="{{ url_for('medicaluser') }}"><button class="nav-btn">MEDICAL REPORTS</button></a>
+            <a href="{{ url_for('caretaker') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('contactcare') }}"><button class="nav-btn">CONTACT</button></a>
+            <a href="{{ url_for('chatcare') }}"><button class="nav-btn">CHAT</button></a>
+            <a href="{{ url_for('locationcare') }}"><button class="nav-btn">PATIENT LOCATION</button></a>
+            <a href="{{ url_for('patientscare') }}"><button class="nav-btn">PATIENTS</button></a>
         </div>
 
         <!-- Main Content -->
@@ -32,7 +31,7 @@
             <div class="header">
                 <h1>SMART COMPANION APP</h1>
                 <div class="user-profile">
-                    <a href="{{ url_for('userprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
+                    <a href="{{ url_for('careprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
                 </div>
             </div>
 
@@ -49,7 +48,7 @@
                     <tr>
                         <td>{{ contact[1] }}</td>
                         <td><a href="tel:+6{{ contact[2] }}" onclick="event.stopPropagation();">{{ contact[2] }}</a></td>
-                        <td><a href="/deletecontact?contact_number={{ contact[2] }}" class="edit-btn">REMOVE</a></td>
+                        <td><a href="/deletecontactcare?contact_number={{ contact[2] }}" class="edit-btn">REMOVE</a></td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -57,14 +56,14 @@
 
             <!-- Buttons -->
             <div class="buttons">
-                <button class="back-btn"><a href="{{ url_for('user') }}">BACK</a></button>
+                <button class="back-btn"><a href="{{ url_for('caretaker') }}">BACK</a></button>
                 
                 <button class="add-btn" onclick="opencontact()">ADD CONTACTS</button>
                 <div id="pop-contact" class="popup-container">
                     <div class="popup-content">
                         <span class="close-btn" onclick="closecontact()">&times;</span>
                             <h2>Add Contact</h2>
-                            <form method="POST" action="addcontact">
+                            <form method="POST" action="addcontactcare">
                                 <input type="text" name="name" placeholder="Name" required>
                                 <input type="text" name="contact_number" placeholder="Contact Number" required>
                                 <button type="submit" class="add-btn" onclick="closecontact()">ADD</button>
