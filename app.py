@@ -1140,6 +1140,7 @@ def emergencyuser():
 @app.route("/medicaluser")
 def medicaluser():
     db = get_db()
+    
     cursor = db.cursor()
     user_id = session.get('user_id')
 
