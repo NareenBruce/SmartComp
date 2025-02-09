@@ -11,12 +11,9 @@
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <a href="{{ url_for('user') }}"><h2>HOME</h2></a>
-            <a href="{{ url_for('contactuser') }}"><button class="nav-btn">CONTACT</button></a>
-            <a href="{{ url_for('chatuser') }}"><button class="nav-btn">CHAT</button></a>
-            <a href="{{ url_for('locationuser') }}"><button class="nav-btn">LOCATION SHARING</button></a>
-            <a href="{{ url_for('emergencyuser') }}"><button class="nav-btn">EMERGENCY SPEED DIAL</button></a>
-            <a href="{{ url_for('medicaluser') }}"><button class="nav-btn">MEDICAL REPORTS</button></a>
+            <a href="{{ url_for('superadmin') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('adminmanage') }}"><button class="nav-btn">MANAGE ADMIN</button></a>
+            <a href="{{ url_for('systemsight') }}"><button class="nav-btn">SYSTEM DATA OVERSIGHT</button></a>
         </div>
     
     
@@ -28,20 +25,16 @@
             </div>
 
             <div class="profile-card">
-                <h3>PATIENT DETAILS</h3>
+                <h3>SUPER ADMIN DETAILS</h3>
                  <div class="profile-content">
                     <img src="{{ image_url }}" alt="Profile Picture" class="profile-img">
                     <div class="profile-details">
-                        <p><strong>Name:</strong> {{ user['name'] }}</p>
-                        <p><strong>Age:</strong> {{ user['age'] }}</p>
-                        <p><strong>Gender:</strong> {{ user['gender'] }}</p>
-                        <p><strong>Username:</strong> {{ user['username'] }}</p>
+                        <p><strong>Username:</strong> {{ admin['username'] }}</p>
                         <p>
                             <strong>Password:</strong> 
-                            <span id="password" data-password="{{ user['password'] }}"  type="password">*******</span>
+                            <span id="password" data-password="{{ admin['password'] }}"  type="password">*******</span>
                             <button onclick="togglePassword()">Show</button>
                         </p>
-                        <p><strong>Contact:</strong> {{ user['ph_num'] }}</p>
                     </div>
                     <script src="static/js/edituser.js"></script>
                 </div>
@@ -53,9 +46,9 @@
                     <div id="popup" class="popup-container">
                         <div class="popup-content">
                             <span class="close-btn" onclick="closePopup()">&times;</span>
-                            <h2>Edit User</h2>
+                            <h2>Edit Super Admin</h2>
                           <!-- form -->
-                            <form method="POST" enctype="multipart/form-data" action="/edituser">
+                            <form method="POST" enctype="multipart/form-data" action="/editsuadmin">
                                 <input type="file" name="image" id="image" accept="image/*">
                                                       
                                 <!-- File Input for Image Upload -->
@@ -63,12 +56,8 @@
                                 
                                 <!-- Display selected image -->
                                 <div id="image-preview" style="margin-top: 10px;"></div>
-                                    <div><p>Name:</p><input type="text" id="name" name="name"></div>
-                                    <div><p>Age:</p><input type="text" id="age" name="age"></div>
-                                    <div><p>Gender:</p><input type="text" id="gender" name="gender"></div>
                                     <div><p>Username:</p><input type="text" id="username" name="username"></div>
                                     <div><p>Password:</p><input type="text" id="password" name="password"></div>
-                                    <div><p>Contact:</p><input type="text" id="contact" name="contact"></div>
                                     <button class="save-btn" onclick="closePopup()" type="submit">SAVE CHANGES</button>
                             </form>
                         </div>
@@ -93,7 +82,7 @@
                     <button class="remove-btn"  onclick="OpenPopup()">REMOVE ACCOUNT</button>
                         <div id="pop-up" class="popup-container">
                             <div class="popup-content">
-                                <form method="POST" action="/removeuser">
+                                <form method="POST" action="/removesuadmin">
                                     <span class="close-btn" onclick="ClosePopup()">&times;</span>
                                         <h2>Remove Account</h2>
                                         <h3>Are you sure you want to remove your account?</h3>
@@ -104,36 +93,12 @@
                         </div>
                         <script src="static/js/edituser.js"></script>
 
-                    <a href="{{ url_for('logout') }}" onclick="clearSession(event)">LOGOUT</a>
-                    <script>
-                        function clearSession(event) {
-                            event.preventDefault(); // Prevent default action
-                            sessionStorage.clear(); // Clears session storage
-                            localStorage.clear();   // Clears local storage (if any)
-                            window.location.href = "{{ url_for('logout') }}"; // Redirect to logout
-                        }
-                    </script>
-                    <script>
-                        (function() {
-                            // Push new history state to block back navigation
-                            window.history.pushState(null, "", window.location.href);
-                    
-                            window.onpopstate = function() {
-                                // If user presses back, redirect to login and clear session
-                                alert("You cannot go back after logging out!");
-                                window.location.href = "/login";
-                            };
-                    
-                            // Extra layer: Reload page on back to ensure logout state
-                            if (window.performance && window.performance.navigation.type === 2) {
-                                window.location.href = "/login";
-                            }
-                        })();
-                    </script>
+                    <a href="{{ url_for('logout') }}">LOGOUT</a>
                     
                 </div>
             </div>
         </div>
+
     </div>
 
 </body>

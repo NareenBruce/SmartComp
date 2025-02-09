@@ -70,6 +70,40 @@ a {
     background-color: #b06988;
 }
 
+/* Contacts Section */
+.contacts-section {
+    width: 80%;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.contacts-title {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+.contacts-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.contacts-table th, .contacts-table td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+.contacts-table th {
+    background-color: #555;
+    color: white;
+}
+
+
 /* Profile Section */
 .profile-section {
     flex-grow: 1;

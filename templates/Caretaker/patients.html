@@ -1,29 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Smart Companion | Patients</title>
-    <link rel="stylesheet" type="text/css" href="static/caretaker.css">
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts - Smart Companion App</title>
+    <link rel="stylesheet" href="static/contact.css">
 </head>
-<header>
-    <div class="header">
-        <h1>
-           <a href="Caretaker/caretakerhomepage.html">SMART COMPANION</a>
-        </h1>
-    </div>
-</header>
 <body>
-    <div class="title">
-        <h1>Patients</h1>
-    </div>
-    <div class="patient">
-        <h3>Patient Name</h3>
-        <div class="patient-view">
-            <a href="Caretaker/patientdetails.html">View Patient</a>
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('caretaker') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('contactcare') }}"><button class="nav-btn">CONTACT</button></a>
+            <a href="{{ url_for('chatcare') }}"><button class="nav-btn">CHAT</button></a>
+            <a href="{{ url_for('locationcare') }}"><button class="nav-btn">PATIENT LOCATION</button></a>
+            <a href="{{ url_for('patientscare') }}"><button class="nav-btn">PATIENTS</button></a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+                <div class="user-profile">
+                    <a href="{{ url_for('careprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
+                </div>
+            </div>
+
+            <!-- Contacts Section -->
+            <div class="contacts-section">
+                <h2 class="contacts-title">PATIENTS ASSIGNED TO YOU</h2>
+                <table class="contacts-table">
+                    <tr>
+                        <th>Name</th>
+                        <th>Contact Number</th>
+                        <th>Profile</th>
+                    </tr>
+                    {% for contact in contacts %}
+                    <tr>
+                        <td>{{ contact[1] }}</td>
+                        <td>{{ contact[6] }}</td>
+                        <td><a href="/patientprofile?p_id={{ contact[0] }}">Link</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <!-- Buttons -->
+            <div class="buttons">
+                <a href="{{ url_for('caretaker') }}"><button class="back-btn">BACK</button></a>
+            </div>
         </div>
     </div>
+
 </body>
-<footer>
-    &copy; 2024 Smart Companion Application | Group 2 T18L
-</footer>
 </html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Companion - User Profile</title>
+    <link rel="stylesheet" href="static/profile.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('admin') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('aviewusers') }}"><button class="nav-btn">VIEW USERS</button></a>
+            <a href="{{ url_for('aviewcare') }}"><button class="nav-btn">VIEW CARETAKERS</button></a>
+            <a href="{{ url_for('assign') }}"><button class="nav-btn">ASSIGNING CHART</button></a>
+        </div>
+        <!-- Main Content -->
+        <div class="profile-section">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+            </div>
+
+            <div class="profile-card">
+                <h3>PATIENT DETAILS</h3>
+                 <div class="profile-content">
+                    <img src="{{ image_url }}" alt="Profile Picture" class="profile-img">
+                    <div class="profile-details">
+                        <p><strong>Name:</strong> {{ user['name'] }}</p>
+                        <p><strong>Age:</strong> {{ user['age'] }}</p>
+                        <p><strong>Gender:</strong> {{ user['gender'] }}</p>
+                        <p><strong>Contact:</strong> {{ user['ph_num'] }}</p>
+                    </div>
+                    <script src="static/js/edituser.js"></script>
+                </div>
+            </div>
+            <button class="remove-btn"  onclick="OpenPopup()">REMOVE ACCOUNT</button>
+                        <div id="pop-up" class="popup-container">
+                            <div class="popup-content">
+                                <form method="POST" action="/adeletecare">
+                                    <span class="close-btn" onclick="ClosePopup()">&times;</span>
+                                        <h2>Remove Account</h2>
+                                        <h3>Are you sure you want to remove your account?</h3>
+                                        <button onclick="ClosePopup()" type="button">NO</button>
+                                        
+                                        <button onclick="ClosePopup()" type="submit"><a href="/adeletecare?u_id={{ user['id'] }}">YES</a></button>
+                                </form>
+                            </div>
+                        </div>
+                        <script src="static/js/edituser.js"></script>
+            <div class="buttons">
+                <a href="{{ url_for('aviewcare') }}"><button class="back-btn">BACK</button></a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

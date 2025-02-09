@@ -92,7 +92,7 @@
                     <button class="remove-btn"  onclick="OpenPopup()">REMOVE ACCOUNT</button>
                         <div id="pop-up" class="popup-container">
                             <div class="popup-content">
-                                <form method="POST" action="/removeuser">
+                                <form method="POST" action="/removecare">
                                     <span class="close-btn" onclick="ClosePopup()">&times;</span>
                                         <h2>Remove Account</h2>
                                         <h3>Are you sure you want to remove your account?</h3>
@@ -103,11 +103,12 @@
                         </div>
                         <script src="static/js/edituser.js"></script>
 
-                    <a href="{{ url_for('clogout') }}">LOGOUT</a>
+                    <a href="{{ url_for('logout') }}">LOGOUT</a>
                     
                 </div>
             </div>
         </div>
+    
     </div>
 
 </body>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts - Smart Companion App</title>
+    <link rel="stylesheet" href="static/contact.css">
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('superadmin') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('adminmanage') }}"><button class="nav-btn">MANAGE ADMIN</button></a>
+            <a href="{{ url_for('systemsight') }}"><button class="nav-btn">SYSTEM DATA OVERSIGHT</button></a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+                <div class="user-profile">
+                    <a href="{{ url_for('su_profile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
+                </div>
+            </div>
+
+           <!-- Contacts Section -->
+           <div class="contacts-section">
+            <h2 class="contacts-title">VIEW ADMINS</h2>
+            <table class="contacts-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Remove</th>
+                </tr>
+                {% for contact in contacts %}
+                <tr>
+                    <td>{{ contact[1] }}</td>
+                    <td><a href="/deladmin?p_id={{ contact[0] }}">Remove</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Buttons -->
+        <div class="buttons">
+            <a href="{{ url_for('superadmin') }}"><button class="back-btn">BACK</button></a>
+
+            <!-- Add Admin Button -->
+<button class="add-btn" onclick="openAdminPopup()">ADD ADMIN</button>
+
+<!-- Pop-up Container -->
+<div id="admin-popup" class="popup-container">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closeAdminPopup()">&times;</span>
+        <h2>Add New Admin</h2>
+
+        <form action="{{ url_for('addadmin') }}" method="POST">
+            <label for="admin_user">Admin Username:</label>
+            <input type="text" id="admin_user" name="admin_user" required>
+
+            <label for="admin_pass">Admin Password:</label>
+            <input type="password" id="admin_pass" name="admin_pass" required>
+
+            <button type="submit" class="save-btn">ADD ADMIN</button>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for Popup -->
+<script>
+    function openAdminPopup() {
+        document.getElementById("admin-popup").style.display = "flex";
+    }
+
+    function closeAdminPopup() {
+        document.getElementById("admin-popup").style.display = "none";
+    }
+</script>
+
+<!-- CSS for Popup -->
+<style>
+    .popup-container {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 300px;
+        text-align: center;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #555;
+    }
+
+    .popup-content input {
+        width: 90%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .save-btn {
+        background: #007BFF;
+        color: white;
+        border: none;
+        padding: 10px;
+        width: 90%;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    .save-btn:hover {
+        background: #0056b3;
+    }
+</style>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

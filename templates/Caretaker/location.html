@@ -37,7 +37,7 @@
 
             <!-- Contacts Section -->
             <div class="contacts-section">
-                <h2 class="contacts-title">CONTACTS</h2>
+                <h2 class="contacts-title">PATIENT LOCATION</h2>
                 <table class="contacts-table">
                     <tr>
                         <th>Name</th>
@@ -60,19 +60,6 @@
             <div class="buttons">
                 <button class="back-btn"><a href="{{ url_for('caretaker') }}">BACK</a></button>
                 
-                <button class="add-btn" onclick="opencontact()">ADD CONTACTS</button>
-                <div id="pop-contact" class="popup-container">
-                    <div class="popup-content">
-                        <span class="close-btn" onclick="closecontact()">&times;</span>
-                            <h2>Add Contact</h2>
-                            <form method="POST" action="addcontactcare">
-                                <input type="text" name="name" placeholder="Name" required>
-                                <input type="text" name="contact_number" placeholder="Contact Number" required>
-                                <button type="submit" class="add-btn" onclick="closecontact()">ADD</button>
-                            </form>
-                            <script src="static/js/edituser.js"></script>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

@@ -37,3 +37,4 @@ function opencontact() {
 function closecontact() {
     document.getElementById("pop-contact").classList.remove("active");
 }
+

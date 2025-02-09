@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, render_template, request, redirect, url_for,g, session, jsonify
+from flask import Flask, flash, render_template, request, redirect, url_for,g, session, jsonify, Response
 import sqlite3
 import time
 from flask_socketio import join_room, leave_room, send, SocketIO
@@ -112,6 +112,15 @@ def create_table():
             pdf_name TEXT NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS assign (
+           id INTEGER PRIMARY KEY AUTOINCREMENT,
+           user_name TEXT NOT NULL,
+           user_id TEXT NOT NULL,
+           caretaker_name TEXT NOT NULL,
+           caretaker_id TEXT NOT NULL
+           )
+    ''')
     conn.commit()
     conn.close()
 
@@ -145,6 +154,7 @@ def close_db(exception):
     db = g.pop('db', None)
     if db is not None:
         db.close()
+
         
 #this is the homepage route and method
 @app.route("/")
@@ -207,13 +217,496 @@ def signup():
 #this is the superadmin login route and method
 @app.route("/superadmin")
 def superadmin():
-    return render_template("SuperAdmin/superadmin.html")
+    sa_id = session.get('sa_id')
+    str_sa_id = str(sa_id)
+    
+    with open("static/img_log/su_admin/"+ str_sa_id + ".txt", "a+") as file:
+        file.seek(0)
+        image_name = str(file.read())
+        if image_name:
+            image_url= url_for('static', filename='uploads/'+ image_name )
+        else:
+            image_name = "user.jpg"
+            image_url= url_for('static', filename='uploads/'+ image_name )
+            file.write(image_name)  # Store the value
+                
+    return render_template("SuperAdmin/su_homepage.html", image_url=image_url, image_name=image_name)
+
+@app.route("/su_profile", methods=["GET", "POST"])
+def su_profile():
+    db = get_db()
+    cursor = db.cursor()
+    
+    sa_id = session.get('sa_id')
+    str_sa_id = str(sa_id)
+    if not sa_id:
+        return redirect(url_for('login'))
+    
+    cursor.execute('SELECT * FROM super_admin WHERE id = ?',(sa_id,))
+    admin = cursor.fetchone()
+    db.close()
+    
+    with open("static/img_log/su_admin/"+ str_sa_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("SuperAdmin/profile.html", admin=admin, image_url=image_url, image_name=image_name)
+
+@app.route("/editsuadmin", methods=["GET", "POST"])
+def editsuadmin():
+    if request.method == 'POST':
+        # Check if the form contains a file
+        if 'image' not in request.files:
+            return 'No file part'
+        
+        file = request.files['image']
+        
+        # Check if the file is allowed
+        if file and allowed_file(file.filename):
+            # Secure the filename (to prevent directory traversal attacks)
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            # Check if there is an existing image, and remove it if it exists
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            
+            # Save the new file
+            file.save(file_path)
+            image_name=filename
+           
+            sa_id = session.get('sa_id')
+            str_sa_id = str(sa_id)
+            
+            with open("static/img_log/su_admin/"+ str_sa_id + ".txt", "r") as file:
+                x = str(file.read())
+                if x == image_name:
+                    return su_profile()
+                else:
+                    with open("static/img_log/su_admin/"+ str_sa_id + ".txt", "w") as file:
+                        file.write(image_name)  # Store the value
+                    return su_profile()
+        
+        #Enter the saved data into the database
+        db = get_db()
+        cursor = db.cursor()
+        
+        sa_id = session.get('sa_id')
+        
+        if request.method == "POST":
+            username = request.form["username"].strip()
+            password = request.form["password"].strip()
+            
+            update_fields = {}
+            if username:
+                update_fields["username"] = username
+            if password:
+                update_fields["password"] = password
+            
+            if update_fields:  # Update only if there are changes
+                update_query = "UPDATE super_admin SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
+                db.execute(update_query, tuple(update_fields.values()) + (sa_id,))
+                db.commit()
+                db.close()
+            
+            return redirect(url_for("su_profile"))
+    
+    return redirect("/su_profile")  # Render the profile page
+
+@app.route("/removesuadmin", methods=["GET", "POST"])
+def removesuadmin():
+    db = get_db()
+    cursor = db.cursor()
+    sa_id = session.get('sa_id')
+
+    cursor.execute('DELETE FROM super_admin WHERE id = ?', (sa_id,))
+    db.commit()
+    db.close()
+    flash("Account deleted successfully", "success")
+    return redirect(url_for('signup')) 
+    
+@app.route("/adminmanage", methods=["GET", "POST"])
+def adminmanage():
+    sa_id = session.get('sa_id')
+    str_sa_id = str(sa_id)
+    
+    db= get_db()
+    cursor = db.cursor()
+    
+    #To display contacts
+    cursor.execute("SELECT * FROM admin")
+    contacts_list = cursor.fetchall()  # Fetch all matching rows
+    db.close()
+
+    with open("static/img_log/su_admin/"+ str_sa_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("SuperAdmin/adminmanage.html",image_url=image_url, contacts=contacts_list)
+
+@app.route("/deladmin", methods=["GET", "POST"])
+def deladmin():
+    db= get_db()
+    cursor = db.cursor()
+    
+    admin_id= request.args.get('p_id')
+    cursor.execute('DELETE FROM admin WHERE id=?', (admin_id,))
+    db.commit()
+    db.close()
+    flash("Contact deleted successfully!")
+    return redirect(url_for('adminmanage'))
+
+@app.route("/addadmin", methods=["GET", "POST"])
+def addadmin():
+    db = get_db()
+    cursor = db.cursor()
+
+    admin_user = request.form["admin_user"]
+    admin_pass = request.form["admin_pass"]
+
+    # Check if admin already exists
+    cursor.execute("SELECT * FROM admin WHERE username = ?", (admin_user,))
+    existing_admin = cursor.fetchone()
+
+    if existing_admin:
+        flash("Admin username already exists!")
+        db.close()
+        return redirect(url_for("adminmanage"))
+
+    # Insert new admin
+    cursor.execute("INSERT INTO admin (username, password) VALUES (?, ?)", (admin_user, admin_pass))
+    db.commit()
+    db.close()
+
+    flash("New admin added successfully!")
+    return redirect(url_for("adminmanage"))
+
+@app.route("/systemsight", methods=["GET", "POST"])
+def systemsight():
+    db = get_db()
+    cursor = db.cursor()
+    
+    sa_id = session.get('sa_id')
+    str_sa_id = str(sa_id)
+    
+    # Count total users
+    cursor.execute("SELECT COUNT(*) FROM user")
+    user_count = cursor.fetchone()[0]
+
+    # Count total caretakers
+    cursor.execute("SELECT COUNT(*) FROM caretaker")
+    caretaker_count = cursor.fetchone()[0]
+
+    # Count total admins
+    cursor.execute("SELECT COUNT(*) FROM admin")
+    admin_count = cursor.fetchone()[0]
+    
+    with open("static/img_log/su_admin/"+ str_sa_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("SuperAdmin/systemsight.html", image_url=image_url, user_count=user_count, caretaker_count=caretaker_count, admin_count=admin_count)
 
 ###############################################ADMIN####################################################
 #this is the admin login route and method
 @app.route("/admin")
 def admin():
-    return render_template("Admin/adminhomepage.html")
+    admin_id = session.get('admin_id')
+    str_admin_id = str(admin_id)
+    
+    with open("static/img_log/admin/"+ str_admin_id + ".txt", "a+") as file:
+        file.seek(0)
+        image_name = str(file.read())
+        if image_name:
+            image_url= url_for('static', filename='uploads/'+ image_name )
+        else:
+            image_name = "user.jpg"
+            image_url= url_for('static', filename='uploads/'+ image_name )
+            file.write(image_name)  # Store the value
+                
+    return render_template("Admin/adminhomepage.html", image_url=image_url, image_name=image_name)
+
+@app.route("/adminprofile", methods=["GET", "POST"])
+def adminprofile():
+    db = get_db()
+    cursor = db.cursor()
+    
+    admin_id = session.get('admin_id')
+    str_admin_id = str(admin_id)
+    if not admin_id:
+        return redirect(url_for('login'))
+    
+    cursor.execute('SELECT * FROM admin WHERE id = ?',(admin_id,))
+    admin = cursor.fetchone()
+    db.close()
+    
+    with open("static/img_log/admin/"+ str_admin_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("Admin/profile.html", admin=admin, image_url=image_url, image_name=image_name)
+
+@app.route("/editadmin", methods=["GET", "POST"])
+def editadmin():
+    if request.method == 'POST':
+        # Check if the form contains a file
+        if 'image' not in request.files:
+            return 'No file part'
+        
+        file = request.files['image']
+        
+        # Check if the file is allowed
+        if file and allowed_file(file.filename):
+            # Secure the filename (to prevent directory traversal attacks)
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            # Check if there is an existing image, and remove it if it exists
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            
+            # Save the new file
+            file.save(file_path)
+            image_name=filename
+           
+            admin_id = session.get('admin_id')
+            str_admin_id = str(admin_id)
+            
+            with open("static/img_log/admin/"+ str_admin_id + ".txt", "r") as file:
+                x = str(file.read())
+                if x == image_name:
+                    return adminprofile()
+                else:
+                    with open("static/img_log/admin/"+ str_admin_id + ".txt", "w") as file:
+                        file.write(image_name)  # Store the value
+                    return adminprofile()
+        
+        #Enter the saved data into the database
+        db = get_db()
+        cursor = db.cursor()
+        
+        admin_id = session.get('admin_id')
+        
+        if request.method == "POST":
+            username = request.form["username"].strip()
+            password = request.form["password"].strip()
+            
+            update_fields = {}
+            if username:
+                update_fields["username"] = username
+            if password:
+                update_fields["password"] = password
+            
+            if update_fields:  # Update only if there are changes
+                update_query = "UPDATE admin SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
+                db.execute(update_query, tuple(update_fields.values()) + (admin_id,))
+                db.commit()
+                db.close()
+            
+            return redirect(url_for("adminprofile"))
+    
+    return redirect("/adminprofile")  # Render the profile page
+
+@app.route("/removeadmin", methods=["GET", "POST"])
+def removeadmin():
+    db = get_db()
+    cursor = db.cursor()
+    admin_id = session.get('admin_id')
+
+    cursor.execute('DELETE FROM admin WHERE id = ?', (admin_id,))
+    db.commit()
+    db.close()
+    flash("Account deleted successfully", "success")
+    return redirect(url_for('signup')) 
+
+@app.route("/aviewusers", methods=["GET", "POST"])
+def aviewusers():
+    db= get_db()
+    cursor = db.cursor()
+    
+    #To display image
+    admin_id = session.get('admin_id')
+    str_admin_id = str(admin_id)
+    with open("static/img_log/admin/"+ str_admin_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #To display contacts
+    cursor.execute("SELECT * FROM user ")
+    patient_list = cursor.fetchall()  # Fetch all matching rows
+    db.close()
+    return render_template("admin/viewuser.html", image_url=image_url, contacts=patient_list)
+
+@app.route("/aviewuserprofile", methods=["GET", "POST"])
+def aviewfuserprofile():
+    db = get_db()
+    cursor = db.cursor()
+    
+    user_id = request.args.get('p_id')
+    #Fetch data for user information
+    cursor.execute('SELECT * FROM user WHERE id = ?',(user_id,))
+    user = cursor.fetchone()
+    str_user_id =  str(user[0])
+    
+    #Fetch data for Medica data report
+    cursor.execute('SELECT * FROM medical_data WHERE user_id = ?',(user_id,))
+    report = cursor.fetchall()
+    db.close()
+    
+    with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("Admin/viewuserprofile.html", user=user, image_url=image_url, image_name=image_name, report=report)
+
+@app.route("/adeleteuser", methods=["GET", "POST"])
+def adeleteuser():
+    db = get_db()
+    cursor = db.cursor()
+    user_id = request.args.get('u_id')
+    cursor.execute("SELECT ph_num FROM user WHERE id = ?", (user_id,))
+    contact_number = cursor.fetchone()[0]
+    cursor.execute("DELETE FROM contact WHERE contact_number = ?", (contact_number,))
+    cursor.execute('DELETE FROM user WHERE id = ?', (user_id,))
+    cursor.execute("DELETE FROM assign WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM medical_data WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM locations WHERE user_id = ?", (user_id,))
+    
+    db.commit()
+    db.close()
+    flash("Account deleted successfully", "success")
+    return redirect(url_for('aviewusers')) 
+
+@app.route("/aviewcare", methods=["GET", "POST"])
+def aviewcare():
+    db= get_db()
+    cursor = db.cursor()
+    
+    #To display image
+    admin_id = session.get('admin_id')
+    str_admin_id = str(admin_id)
+    with open("static/img_log/admin/"+ str_admin_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    #To display contacts
+    cursor.execute("SELECT * FROM caretaker ")
+    patient_list = cursor.fetchall()  # Fetch all matching rows
+    db.close()
+    return render_template("admin/viewcare.html", image_url=image_url, contacts=patient_list)
+
+@app.route("/aviewcareprofile", methods=["GET", "POST"])
+def aviewcareprofile():
+    db = get_db()
+    cursor = db.cursor()
+    
+    user_id = request.args.get('p_id')
+    #Fetch data for user information
+    cursor.execute('SELECT * FROM caretaker WHERE id = ?',(user_id,))
+    user = cursor.fetchone()
+    str_user_id =  str(user[0])
+    db.close()
+    
+    with open("static/img_log/caretaker/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("Admin/viewcareprofile.html", user=user, image_url=image_url, image_name=image_name)
+
+@app.route("/adeletecare", methods=["GET", "POST"])
+def adeletecare():
+    db = get_db()
+    cursor = db.cursor()
+    user_id = request.args.get('u_id')
+    str_user_id = str(user_id)
+    cursor.execute("SELECT ph_num FROM caretaker WHERE id = ?", (user_id,))
+    contact_number = cursor.fetchone()[0]
+    cursor.execute("DELETE FROM contact WHERE contact_number = ?", (contact_number,))
+    cursor.execute('DELETE FROM caretaker WHERE id = ?', (str_user_id,))
+    cursor.execute("DELETE FROM assign WHERE caretaker_id = ?", (str_user_id,))
+    db.commit()
+    db.close()
+    flash("Account deleted successfully", "success")
+    return redirect(url_for('aviewcare')) 
+
+@app.route("/assign", methods=["GET", "POST"])
+def assign():
+    db = get_db()
+    cursor = db.cursor()
+
+    if request.method == "POST":
+        user_id = request.form["user_id"]
+        caretaker_id = request.form["caretaker_id"]
+
+        # Fetch user and caretaker names
+        cursor.execute("SELECT name FROM user WHERE id = ?", (user_id,))
+        user_name = cursor.fetchone()
+        
+        cursor.execute("SELECT name FROM caretaker WHERE id = ?", (caretaker_id,))
+        caretaker_name = cursor.fetchone()
+
+        if not user_name or not caretaker_name:
+            flash("Invalid selection, please try again.")
+            return redirect(url_for("assign"))
+
+        # Check if user is already assigned
+        cursor.execute("SELECT * FROM assign WHERE user_id = ?", (user_id,))
+        existing_assignment = cursor.fetchone()
+        
+        if existing_assignment:
+            flash("This user is already assigned to a caretaker!")
+            return redirect(url_for("assign"))
+
+        # Assign caretaker to user
+        cursor.execute("""
+            INSERT INTO assign (user_name, user_id, caretaker_name, caretaker_id)
+            VALUES (?, ?, ?, ?)
+        """, (user_name[0], user_id, caretaker_name[0], caretaker_id))
+        
+        db.commit()
+        flash("Assignment successful!")
+        return redirect(url_for("assign"))
+
+    # Fetch available users (users who are not assigned)
+    cursor.execute("""
+        SELECT id, name FROM user 
+        WHERE id NOT IN (SELECT user_id FROM assign)
+    """)
+    available_users = cursor.fetchall()
+
+    # Fetch all caretakers (caretaker can have multiple users)
+    cursor.execute("""
+        SELECT id, name FROM caretaker
+    """)
+    available_caretakers = cursor.fetchall()
+    
+    admin_id = session.get('admin_id')
+    str_admin_id = str(admin_id)
+    with open("static/img_log/admin/"+ str_admin_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+        
+    # Fetch assigned users table
+    cursor.execute("""
+        SELECT * FROM assign
+    """)
+    assigned_users = cursor.fetchall()
+
+    db.close()
+
+    db.close()
+    
+    return render_template("Admin/assign.html", available_users=available_users, available_caretakers=available_caretakers, image_url=image_url, assigned_users=assigned_users)
+
+@app.route("/unassign", methods=["POST"])
+def unassign():
+    user_id = request.form["user_id"]
+    
+    db = get_db()
+    cursor = db.cursor()
+
+    # Delete user assignment
+    cursor.execute("DELETE FROM assign WHERE user_id = ?", (user_id,))
+    
+    db.commit()
+    db.close()
+    
+    flash("User has been unassigned from caretaker.")
+    return redirect(url_for("assign"))
 
 ###############################################USER####################################################
 #this is the user login route and method
@@ -376,7 +869,13 @@ def removeuser():
     cursor = db.cursor()
     user_id = session.get('user_id')
 
+    cursor.execute("SELECT ph_num FROM user WHERE id = ?", (user_id,))
+    contact_number = cursor.fetchone()[0]
+    cursor.execute("DELETE FROM contact WHERE contact_number = ?", (contact_number,))
     cursor.execute('DELETE FROM user WHERE id = ?', (user_id,))
+    cursor.execute("DELETE FROM assign WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM medical_data WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM locations WHERE user_id = ?", (user_id,))
     db.commit()
     db.close()
     flash("Account deleted successfully", "success")
@@ -433,7 +932,6 @@ def addcontact():
             return redirect(url_for('contactuser'))
     return redirect(url_for('contactuser'))
 
-
 @app.route("/deletecontact")
 def deletecontact():
     db= get_db()
@@ -446,8 +944,6 @@ def deletecontact():
     db.close()
     flash("Contact deleted successfully!")
     return redirect(url_for('contactuser'))
-
-
 
 @app.route("/chatuser", methods=["GET", "POST"])
 def chatuser():
@@ -703,11 +1199,6 @@ def deletemedical():
     flash("Report deleted successfully!")
     return redirect(url_for('medicaluser'))
 
-@app.route("/logout")
-def logout():
-    session.pop('user_id', None)
-    return redirect(url_for('login'))
-
 ###############################################CARETAKER####################################################
 #this is the caretaker login route and method
 @app.route("/caretaker")
@@ -867,17 +1358,16 @@ def removecare():
     db = get_db()
     cursor = db.cursor()
     care_id = session.get('care_id')
-
+    
+    cursor.execute("SELECT ph_num FROM caretaker WHERE id = ?", (care_id,))
+    contact_number = cursor.fetchone()[0]
+    cursor.execute("DELETE FROM contact WHERE contact_number = ?", (contact_number,))
     cursor.execute('DELETE FROM caretaker WHERE id = ?', (care_id,))
+    cursor.execute("DELETE FROM assign WHERE caretaker_id = ?", (care_id,))
     db.commit()
     db.close()
     flash("Account deleted successfully", "success")
     return redirect(url_for('signup'))
-
-@app.route("/clogout")
-def clogout():
-    session.pop('care_id', None)
-    return redirect(url_for('login'))
 
 @app.route("/contactcare", methods=["GET", "POST"])
 def contactcare():
@@ -1053,13 +1543,24 @@ def locationcare():
     care_id = session.get('care_id')
     str_care_id = str(care_id)
     
-    cursor.execute("SELECT * FROM locations")
-    location_list = cursor.fetchall()  # Fetch all matching rows
+    cursor.execute("SELECT user_id FROM assign WHERE caretaker_id = ?", (str_care_id,))
+    user_ids = cursor.fetchall() 
+    location_list = []
+    if not user_ids:
+        flash("No users assigned to this caretaker.")
+        db.close()
+        return redirect(url_for("caretaker_dashboard"))
+    
+    for user in user_ids:
+        user_id = user[0]  # Extract user_id from tuple
+        cursor.execute("SELECT * FROM locations WHERE user_id = ?", (user_id,))
+        location_list.extend(cursor.fetchall())  # Append all location rows
+    
     db.close()
     with open("static/img_log/caretaker/"+ str_care_id + ".txt", "r") as file:
         image_name = str(file.read())
         image_url= url_for('static', filename='uploads/'+ image_name )
-    return render_template("Caretaker//location.html", image_url=image_url, contacts=location_list)
+    return render_template("Caretaker/location.html", image_url=image_url, contacts=location_list)
 
 @app.route("/deletelocationcare")
 def deletelocationcare():
@@ -1076,7 +1577,72 @@ def deletelocationcare():
 
 @app.route("/patientscare", methods=["GET", "POST"])
 def patientscare():
-    return "patientscare"
+    db= get_db()
+    cursor = db.cursor()
+    
+    care_id = session.get('care_id')
+    str_care_id = str(care_id)
+    
+    cursor.execute("SELECT user_id FROM assign WHERE caretaker_id = ?", (str_care_id,))
+    user_ids = cursor.fetchall() 
+    patient_list = []
+    if not user_ids:
+        flash("No users assigned to this caretaker.")
+        db.close()
+        return redirect(url_for("caretaker_dashboard"))
+    
+    for user in user_ids:
+        user_id = user[0]  # Extract user_id from tuple
+        cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
+        patient_list.extend(cursor.fetchall())  # Append all location rows
+    
+    #To display image
+    care_id = session.get('care_id')
+    str_care_id = str(care_id)
+    with open("static/img_log/caretaker/"+ str_care_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name)
+    
+    db.close()
+    return render_template("Caretaker/patients.html", image_url=image_url, contacts=patient_list)
+
+@app.route("/patientprofile", methods=["GET", "POST"])
+def patientprofile():
+    db = get_db()
+    cursor = db.cursor()
+    
+    user_id = request.args.get('p_id')
+    #Fetch data for user information
+    cursor.execute('SELECT * FROM user WHERE id = ?',(user_id,))
+    user = cursor.fetchone()
+    str_user_id =  str(user[0])
+    
+    #Fetch data for Medica data report
+    cursor.execute('SELECT * FROM medical_data WHERE user_id = ?',(user_id,))
+    report = cursor.fetchall()
+    db.close()
+    
+    with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
+        image_name = str(file.read())
+        image_url= url_for('static', filename='uploads/'+ image_name )
+    return render_template("Caretaker/patientdetails.html", user=user, image_url=image_url, image_name=image_name, report=report)
+
+###################################################LOGOUT####################################################
+@app.route("/logout")
+def logout():
+    session.clear()  # Clear session data
+    flash("You have been logged out.")
+
+    # Strongest Cache-Control Headers
+    response = redirect(url_for("login"))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private, no-transform'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    response.headers['Set-Cookie'] = 'session=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; HttpOnly; Secure; SameSite=Lax'
+
+    return response
+
+
 #this is the part of code that runs the app
 if __name__ == "__main__":
     create_table()

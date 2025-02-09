@@ -11,11 +11,10 @@
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <a href="{{ url_for('caretaker') }}"><h2>HOME</h2></a>
-            <a href="{{ url_for('contactcare') }}"><button class="nav-btn">CONTACT</button></a>
-            <a href="{{ url_for('chatcare') }}"><button class="nav-btn">CHAT</button></a>
-            <a href="{{ url_for('locationcare') }}"><button class="nav-btn">PATIENT LOCATION</button></a>
-            <a href="{{ url_for('patientscare') }}"><button class="nav-btn">PATIENTS</button></a>
+            <a href="{{ url_for('admin') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('aviewusers') }}"><button class="nav-btn">VIEW USERS</button></a>
+            <a href="{{ url_for('aviewcare') }}"><button class="nav-btn">VIEW CARETAKERS</button></a>
+            <a href="{{ url_for('assign') }}"><button class="nav-btn">ASSIGNING CHART</button></a>
         </div>
         <!-- Main Content -->
         <div class="profile-section">
@@ -36,6 +35,19 @@
                     <script src="static/js/edituser.js"></script>
                 </div>
             </div>
+            <button class="remove-btn"  onclick="OpenPopup()">REMOVE ACCOUNT</button>
+                        <div id="pop-up" class="popup-container">
+                            <div class="popup-content">
+                                <form method="POST" action="/adeleteuser">
+                                    <span class="close-btn" onclick="ClosePopup()">&times;</span>
+                                        <h2>Remove Account</h2>
+                                        <h3>Are you sure you want to remove your account?</h3>
+                                        <button onclick="ClosePopup()" type="button">NO</button>
+                                        <button onclick="ClosePopup()" type="submit" ><a href="/adeleteuser?u_id={{ user['id'] }}">YES</a></button>
+                                </form>
+                            </div>
+                        </div>
+                        <script src="static/js/edituser.js"></script>
 
              <!-- Medical Data Table Section-->
              <div class="contacts-section">
@@ -62,8 +74,9 @@
                         </tbody>
                     </table>
                 </div>
+                
             <div class="buttons">
-                <a href="{{ url_for('patientscare') }}"><button class="back-btn">BACK</button></a>
+                <a href="{{ url_for('aviewusers') }}"><button class="back-btn">BACK</button></a>
             </div>
         </div>
     </div>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts - Smart Companion App</title>
+    <link rel="stylesheet" href="static/contact.css">
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('admin') }}"><h2>HOME</h2></a>
+            <a href="{{ url_for('aviewusers') }}"><button class="nav-btn">VIEW USERS</button></a>
+            <a href="{{ url_for('aviewcare') }}"><button class="nav-btn">VIEW CARETAKERS</button></a>
+            <a href="{{ url_for('assign') }}"><button class="nav-btn">ASSIGNING CHART</button></a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>SMART COMPANION APP</h1>
+                <div class="user-profile">
+                    <a href="{{ url_for('adminprofile') }}"><img src="{{ image_url }}" alt="Profile Picture" class="profile-img"></a>
+                </div>
+            </div>
+
+           <!-- Contacts Section -->
+           <div class="contacts-section">
+            <h2 class="contacts-title">VIEW CARETAKERS</h2>
+            <table class="contacts-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Contact Number</th>
+                    <th>Profile</th>
+                </tr>
+                {% for contact in contacts %}
+                <tr>
+                    <td>{{ contact[1] }}</td>
+                    <td>{{ contact[6] }}</td>
+                    <td><a href="/aviewcareprofile?p_id={{ contact[0] }}">Link</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Buttons -->
+        <div class="buttons">
+            <a href="{{ url_for('admin') }}"><button class="back-btn">BACK</button></a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

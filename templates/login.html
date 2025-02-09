@@ -28,6 +28,22 @@
 
             <input type="submit" value="Sign in">
         </form>
+        <script>
+            (function() {
+                // Push new history state to block back navigation
+                window.history.pushState(null, "", window.location.href);
         
+                window.onpopstate = function() {
+                    // If user presses back, redirect to login and clear session
+                    alert("You cannot go back after logging out!");
+                    window.location.href = "/login";
+                };
+        
+                // Extra layer: Reload page on back to ensure logout state
+                if (window.performance && window.performance.navigation.type === 2) {
+                    window.location.href = "/login";
+                }
+            })();
+        </script>
     </body>
 </html>

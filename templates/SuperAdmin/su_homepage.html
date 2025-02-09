@@ -11,7 +11,7 @@
         <h1>
            <a href="">SMART COMPANION</a><br>
            <div class="title">
-                <h2>Admin Homepage</h2>
+                <h2>Super Admin Homepage</h2>
             </div>
            <style>
             .top-right {
@@ -23,25 +23,20 @@
                 height: 50px;
             }
         </style>
-           <a href="{{ url_for('adminprofile') }}"><img src="{{ image_url }}" alt="user profile page" class="top-right"></a>
+           <a href="{{ url_for('su_profile') }}"><img src="{{ image_url }}" alt="user profile page" class="top-right"></a>
         </h1>
     </div>
 </header>
 <body>
     <div class="navigation">
-        <a href="aviewusers">
+        <a href="/adminmanage">
             <div class="box">
-                VIEW USERS
+                MANAGE ADMIN
             </div>
         </a>
-        <a href="aviewcare">
+        <a href="systemsight">
             <div class="box">
-                VIEW CARETAKERS
-            </div>
-        </a>
-        <a href="assign">
-            <div class="box">
-                ASSIGNING CHART
+                SYSTEM DATA OVERSIGHT
             </div>
         </a>
     </div>
