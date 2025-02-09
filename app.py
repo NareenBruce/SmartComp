@@ -746,8 +746,8 @@ def usersignup():
             return redirect("/usersignup")
         
         # Validate phone number (only digits allowed)
-        if not re.match(r"^\d+$", phone):
-            flash("Invalid phone number! Only numbers (0-9) are allowed, no spaces or symbols.")
+        if not re.match(r"^0\d{9}$", phone):
+            flash("Invalid phone number! Must start with 0 and be 10 digits long.")
             return redirect("/usersignup")
         
         try: 
@@ -756,6 +756,13 @@ def usersignup():
             existing_acc= cursor.fetchone()
             if existing_acc is not None:
                 flash ("User already exists")
+                return redirect("/usersignup")
+            
+            #check if username exists
+            cursor.execute('SELECT * FROM user WHERE username=?', (username,))
+            existing_user= cursor.fetchone()
+            if existing_user is not None:
+                flash ("Username already exists")
                 return redirect("/usersignup")
             
             #add the user to database
@@ -1236,8 +1243,8 @@ def caresignup():
             flash("Passwords do not match")
             return redirect("/caresignup")
         # Validate phone number (only digits allowed)
-        if not re.match(r"^\d+$", phone):
-            flash("Invalid phone number! Only numbers (0-9) are allowed, no spaces or symbols.")
+        if not re.match(r"^0\d{9}$", phone):
+            flash("Invalid phone number! Must start with 0 and be 10 digits long.")
             return redirect("/usersignup")
         
         try: 
