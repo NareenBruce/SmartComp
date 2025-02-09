@@ -1130,9 +1130,11 @@ def emergencyuser():
         image_name = str(file.read())
         image_url= url_for('static', filename='uploads/'+ image_name)
     
-    #cursor.execute("SELECT ph_num FROM assign where user_id = ?", (user_id,))
-    #contacts = cursor.fetchall()[0]
-    contacts= "0167459771"
+    cursor.execute("SELECT caretaker_id FROM assign where user_id = ?", (user_id,))
+    caretaker_id = cursor.fetchone()[0]
+    cursor.execute("SELECT ph_num FROM caretaker where id = ?", (caretaker_id,))
+    contacts = cursor.fetchone()[0]
+    
     return render_template("User/emergency.html", image_url=image_url, contacts=contacts)
 
 @app.route("/medicaluser")
