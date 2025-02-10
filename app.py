@@ -155,7 +155,7 @@ def close_db(exception):
     if db is not None:
         db.close()
 
-        
+###############################################MAIN####################################################
 #this is the homepage route and method
 @app.route("/")
 def home():
@@ -213,7 +213,7 @@ def login():
 @app.route("/signup")
 def signup():
     return render_template("signup.html")
-###############################################SUPER ADMIN####################################################
+###############################################SUPER ADMIN###############################################
 #this is the superadmin login route and method
 @app.route("/superadmin")
 def superadmin():
@@ -746,8 +746,8 @@ def usersignup():
             return redirect("/usersignup")
         
         # Validate phone number (only digits allowed)
-        if not re.match(r"^0\d{9}$", phone):
-            flash("Invalid phone number! Must start with 0 and be 10 digits long.")
+        if not re.match(r"^0\d{8,15}$", phone):
+            flash("Invalid phone number! Must start with 0 and be between 8 to 15 digits long.")
             return redirect("/usersignup")
         
         try: 
@@ -1085,13 +1085,21 @@ def disconnect():
 
 @app.route("/locationuser")
 def locationuser():
+    db = get_db()
+    cursor = db.cursor()
+    
     #To display image
     user_id = session.get('user_id')
     str_user_id = str(user_id)
     with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
         image_name = str(file.read())
         image_url= url_for('static', filename='uploads/'+ image_name)
-    return render_template("User/location.html", image_url=image_url)
+   
+    cursor.execute("SELECT * FROM locations WHERE user_id = ?", (user_id,))
+    location_list = cursor.fetchall()
+    
+    db.close()
+    return render_template("User/location.html", image_url=image_url, contacts=location_list)
 
 @app.route("/update_location", methods=["POST"])
 def update_location():
@@ -1111,11 +1119,27 @@ def update_location():
         name= cursor.fetchone()[0]
         cursor.execute("INSERT INTO locations (user_id, name, latitude, longitude, timestamp) VALUES (?, ?, ?, ?, ?)", (user_id, name, latitude, longitude, newtime))
         db.commit()
+        flash("Location share successfully")
         return jsonify({"message": "Location updated successfully!"}), 200
+        
+        
         
     else:
         flash("Location share failed")
         return jsonify({"error": "Invalid data"}), 400
+    
+@app.route("/deletelocation", methods=["GET", "POST"])
+def deletelocation():
+    db= get_db()
+    cursor = db.cursor()
+    
+    location_id= request.args.get('time_number')
+    user_id = session.get('user_id')
+    cursor.execute('DELETE FROM locations WHERE timestamp=? AND user_id=?', (location_id, user_id))
+    db.commit()
+    db.close()
+    flash("Location deleted successfully!")
+    return redirect(url_for('locationuser'))
 
 @app.route("/emergencyuser")
 def emergencyuser():
@@ -1246,9 +1270,9 @@ def caresignup():
             flash("Passwords do not match")
             return redirect("/caresignup")
         # Validate phone number (only digits allowed)
-        if not re.match(r"^0\d{9}$", phone):
-            flash("Invalid phone number! Must start with 0 and be 10 digits long.")
-            return redirect("/usersignup")
+        if not re.match(r"^0\d{8,15}$", phone):
+            flash("Invalid phone number! Must start with 0 and be between 8 to 15 digits long.")
+            return redirect("/caresignup")
         
         try: 
             #check if already exists
@@ -1559,7 +1583,6 @@ def locationcare():
     if not user_ids:
         flash("No users assigned to this caretaker.")
         db.close()
-        return redirect(url_for("caretaker_dashboard"))
     
     for user in user_ids:
         user_id = user[0]  # Extract user_id from tuple
@@ -1599,7 +1622,7 @@ def patientscare():
     if not user_ids:
         flash("No users assigned to this caretaker.")
         db.close()
-        return redirect(url_for("caretaker_dashboard"))
+        
     
     for user in user_ids:
         user_id = user[0]  # Extract user_id from tuple

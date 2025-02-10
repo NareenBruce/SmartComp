@@ -29,3 +29,61 @@ Or else create a new one
 
 location:
 when Nareen click the button, the location is shown in Hana's Patient Location Page, Hana can delete it if she wants, if she clicks it will direct in google
+
+
+
+USER:
+Nareen(123456)
+Chong (123456)
+Parthi(123456)
+Amir(123456)
+
+Caretaker:
+Hana(123456)
+Ria(123456)
+Siti(123456)
+
+Admin:
+Hong(12345)
+Kong(12345)
+-->add (Jeff, 12345)
+
+Super Admin:
+Kamal(123456)
+
+
+Nareen:
+
+as User
+Login as Nareen and add Pharthiban, and remove Chong into contacts, try to call
+open chat with Hana, and in another browser, show Hana receiving the chat
+Location sharing, show the location being sent to Hana, delete the location
+Emergency speed dial, it will open whatsapp show it
+Upload 2 medical reports and delete one of them
+
+edit details, and then log out
+log in as parthiban to remove account
+
+as Caretaker:
+Login as Hana, add Ria  and remove Parthiban
+Go to chat, and chat with Nareen, in another browser Nareen will reply
+Go to location and click to see the locationa and then later remove it
+Then go to patients to see the patiens assigned to you, click the link
+edit details, and then log out
+
+Hana:
+
+as Admin
+Login as Hong, go to view user, view Nareen profile link, press back and remove Amir
+go to view caretakers, view Hana, and then remove Siti
+go to assigning chart, assign chong to Hana and parthiban to Ria
+Unassign Parthiban and ria
+Go to your profile, edit some details, and then log out
+
+
+Ria:
+
+as SuperAdmin
+Login as Kamal, then go to manage Admin, add Jeff(12345), remove Kong
+Open System Data Oversight, show the table 
+Go to your profile, edit some details, and then log out

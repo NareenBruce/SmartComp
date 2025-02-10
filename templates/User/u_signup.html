@@ -37,9 +37,11 @@
             <input type="password" id="confirm_password" name="confirm_password" required minlength="5" maxlength="10"><br><br>
 
             <label for="phone">Enter Phonenumber (start with 0, without spaces or symbols such as "+ or -"):</label>
-            <input type="text" id="phone" name="phone" required pattern="^0[0-9]{9}+$" title="Only numbers are allowed, no spaces or symbols" required><br><br>
+            <input type="text" id="phone" name="phone" required pattern="^0[0-9]{8,15}$" title="Only numbers are allowed, no spaces or symbols" required><br><br>
 
             <input type="submit" value="Signup">
         </form>
+
+        <a href="{{ url_for('home') }}">BACK</a>
     </body>
 </html>

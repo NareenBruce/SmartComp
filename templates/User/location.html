@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="static/contact.css">
 </head>
 <body>
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
     
     <div class="container">
         <!-- Sidebar -->
@@ -43,8 +52,30 @@
                     </div>
                 </div>
             </div>
+            <!-- Contacts Section -->
+            <div class="contacts-section">
+                <h2 class="contacts-title">PATIENT LOCATION</h2>
+                <table class="contacts-table">
+                    <tr>
+                        <th>Name</th>
+                        <th>Location Link</th>
+                        <th>Timestamp</th>
+                        <th>Remove Location</th>
+                    </tr>
+                    {% for contact in contacts %}
+                    <tr>
+                        <td>{{ contact[2] }}</td>
+                        <td><a href=" https://www.google.com/maps?q={{ contact[3] }},{{ contact[4] }}" onclick="event.stopPropagation();" target="_blank">{{ contact[3], contact[4] }}</a></td>
+                        <td>{{ contact[5] }}</td>
+                        <td><a href="/deletelocation?time_number={{ contact[5] }}" class="edit-btn">REMOVE</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div><br>
+            <a href="{{ url_for('user') }}"><button class="back-btn">BACK</button></a>
             
         </div>
+        
     </div>
 
     <script>
