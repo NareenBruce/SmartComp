@@ -1233,7 +1233,7 @@ def deletemedical():
     flash("Report deleted successfully!")
     return redirect(url_for('medicaluser'))
 
-###############################################CARETAKER####################################################
+###############################################CARETAKER###########################################################################
 #this is the caretaker login route and method
 @app.route("/caretaker")
 def caretaker():
