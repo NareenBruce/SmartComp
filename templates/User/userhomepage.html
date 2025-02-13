@@ -6,6 +6,15 @@
     <link rel="stylesheet" type="text/css" href="static/user.css">
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
 </head>
+{% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li><h2>{{ message }}</h2></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
 <header>
     <div class="header">
         <h1>

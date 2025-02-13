@@ -1197,7 +1197,7 @@ def emergencyuser():
     cursor = db.cursor()
     user_id = session.get('user_id')
     
-     #To display image
+    #To display image
     user_id = session.get('user_id')
     str_user_id = str(user_id)
     with open("static/img_log/user/"+ str_user_id + ".txt", "r") as file:
@@ -1205,7 +1205,11 @@ def emergencyuser():
         image_url= url_for('static', filename='uploads/'+ image_name)
     
     cursor.execute("SELECT caretaker_id FROM assign where user_id = ?", (user_id,))
-    caretaker_id = cursor.fetchone()[0]
+    caretaker= cursor.fetchone()
+    if caretaker is None:
+        flash("No caretaker assigned")
+        return redirect(url_for('user'))
+    caretaker_id= caretaker[0]
     cursor.execute("SELECT ph_num FROM caretaker where id = ?", (caretaker_id,))
     contacts = cursor.fetchone()[0]
     
