@@ -540,7 +540,7 @@ def aviewusers():
     cursor.execute("SELECT * FROM user ")
     patient_list = cursor.fetchall()  # Fetch all matching rows
     db.close()
-    return render_template("admin/viewuser.html", image_url=image_url, contacts=patient_list)
+    return render_template("Admin/viewuser.html", image_url=image_url, contacts=patient_list)
 
 @app.route("/aviewuserprofile", methods=["GET", "POST"])
 def aviewfuserprofile():
@@ -597,7 +597,7 @@ def aviewcare():
     cursor.execute("SELECT * FROM caretaker ")
     patient_list = cursor.fetchall()  # Fetch all matching rows
     db.close()
-    return render_template("admin/viewcare.html", image_url=image_url, contacts=patient_list)
+    return render_template("Admin/viewcare.html", image_url=image_url, contacts=patient_list)
 
 @app.route("/aviewcareprofile", methods=["GET", "POST"])
 def aviewcareprofile():
