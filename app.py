@@ -1679,5 +1679,4 @@ def logout():
 #this is the part of code that runs the app
 if __name__ == "__main__":
     create_table()
-    app.run(debug=True)
-    
+    app.run(host="0.0.0.0", port=8000)
