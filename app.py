@@ -1,4 +1,7 @@
 import os
+import eventlet
+eventlet.monkey_patch()  # Ensures eventlet properly patches networking
+
 from flask import Flask, flash, render_template, request, redirect, url_for,g, session, jsonify, Response
 import sqlite3
 import time
@@ -8,8 +11,7 @@ import re
 import datetime
 from string import ascii_uppercase
 from werkzeug.utils import secure_filename
-import eventlet
-eventlet.monkey_patch()  # Ensures eventlet properly patches networking
+
 
 app= Flask(__name__)
 app.secret_key = 'Nareen_is_very_handsome'
@@ -18,7 +20,8 @@ cursor = conn.cursor()
 # socketio = SocketIO(app)
 
 # Correct WebSocket Configuration
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', logger=True, engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', logger=True, engineio_logger=True, ping_interval=25, ping_timeout=20)
+
 
 
 #this is the dictionary that stores the rooms fr chats
@@ -1086,16 +1089,32 @@ def chatuser():
 #     print(f"Received message: {data}")
 #     socketio.emit("message", f"Server received: {data}")
 
+# @socketio.on("message")
+# def message(data):
+#     room = session.get("room")
+#     content = {
+#         "name": session.get("name"),
+#         "message": data["data"]
+#     }
+#     send(content, to=room)
+#     rooms[room]["messages"].append(content)
+#     print(f"{session.get('name')} said: {data['data']}")
+
 @socketio.on("message")
 def message(data):
     room = session.get("room")
+    if not room:
+        print("No room found for user")
+        return
+
     content = {
         "name": session.get("name"),
         "message": data["data"]
     }
-    send(content, to=room)
-    rooms[room]["messages"].append(content)
-    print(f"{session.get('name')} said: {data['data']}")
+    send(content, to=room)  # Send only to that room
+    rooms[room]["messages"].append(content)  # Store chat history
+    print(f"{session.get('name')} said: {data['data']} in room {room}")
+
 
 @socketio.on("connect")
 def connect(auth):
