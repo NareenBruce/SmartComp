@@ -8,12 +8,18 @@ import re
 import datetime
 from string import ascii_uppercase
 from werkzeug.utils import secure_filename
+import eventlet
+eventlet.monkey_patch()  # Ensures eventlet properly patches networking
 
 app= Flask(__name__)
 app.secret_key = 'Nareen_is_very_handsome'
 conn = sqlite3.connect('project.db')
 cursor = conn.cursor()
-socketio = SocketIO(app)
+# socketio = SocketIO(app)
+
+# Correct WebSocket Configuration
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', logger=True, engineio_logger=True)
+
 
 #this is the dictionary that stores the rooms fr chats
 rooms = {}
@@ -1066,6 +1072,20 @@ def chatuser():
 
     return render_template("User/chat.html", image_url=image_url, contacts=contacts_list)
 
+# WebSocket Events
+# @socketio.on('connect')
+# def handle_connect():
+#     print('Client connected')
+
+# @socketio.on('disconnect')
+# def handle_disconnect():
+#     print('Client disconnected')
+
+# @socketio.on('message')
+# def handle_message(data):
+#     print(f"Received message: {data}")
+#     socketio.emit("message", f"Server received: {data}")
+
 @socketio.on("message")
 def message(data):
     room = session.get("room")
@@ -1690,4 +1710,5 @@ def logout():
 #this is the part of code that runs the app
 if __name__ == "__main__":
     create_table()
-    app.run(host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))  # Default to 8000 if not set
+    socketio.run(app, host="0.0.0.0", port=port, debug=True)
