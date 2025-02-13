@@ -715,7 +715,7 @@ def user():
     user_id = session.get('user_id')
     str_user_id = str(user_id)
     
-    with open("static/img_log/user/"+ str_user_id + ".txt", "a+") as file:
+    with open("/static/img_log/user/"+ str_user_id + ".txt", "a+") as file:
         file.seek(0)
         image_name = str(file.read())
         if image_name:
