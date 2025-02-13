@@ -715,8 +715,15 @@ def user():
     user_id = session.get('user_id')
     str_user_id = str(user_id)
     
-    with open("/static/img_log/user/"+ str_user_id + ".txt", "a+") as file:
-        file.seek(0)
+    # Define the path
+    img_log_dir = os.path.join("static", "img_log", "user")
+    file_path = os.path.join(img_log_dir, f"{str_user_id}.txt")
+
+    # Ensure the directory exists
+    os.makedirs(img_log_dir, exist_ok=True)
+
+    # Now, open the file safely
+    with open(file_path, "a+") as file:
         image_name = str(file.read())
         if image_name:
             image_url= url_for('static', filename='uploads/'+ image_name )
